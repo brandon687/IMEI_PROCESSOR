@@ -32,8 +32,25 @@ app.secret_key = os.urandom(24)
 # Store recent orders in session
 RECENT_ORDERS = []
 
-# Initialize database
-db = get_database()
+# Initialize database (lazy loading with error handling)
+db = None
+
+def get_db():
+    """Get database instance with error handling"""
+    global db
+    if db is None:
+        try:
+            db = get_database()
+            logger.info("Successfully connected to database")
+        except ValueError as e:
+            # Missing credentials
+            logger.error(f"Database configuration error: {e}")
+            logger.error("Please set SUPABASE_URL and SUPABASE_KEY environment variables")
+            return None
+        except Exception as e:
+            logger.error(f"Failed to connect to database: {e}")
+            return None
+    return db
 
 # Auto-sync configuration
 AUTO_SYNC_ENABLED = True
@@ -44,6 +61,12 @@ AUTO_SYNC_INTERVAL = 300  # 5 minutes in seconds
 def index():
     """Home page with service list"""
     try:
+        # Check database connection
+        database = get_db()
+        if database is None:
+            return render_template('error.html',
+                                 error="Database not configured. Please set SUPABASE_URL and SUPABASE_KEY environment variables.")
+
         client = GSMFusionClient()
         services = client.get_imei_services()
         client.close()
@@ -57,6 +80,9 @@ def index():
                              recent_orders=RECENT_ORDERS)
     except GSMFusionAPIError as e:
         return render_template('error.html', error=str(e))
+    except Exception as e:
+        logger.error(f"Error in index route: {e}")
+        return render_template('error.html', error=f"Application error: {str(e)}")
 
 
 @app.route('/services')
@@ -201,7 +227,7 @@ def order_status(order_id):
     """Check order status page"""
     try:
         # First try to get from local database
-        db_order = db.get_order_by_id(order_id)
+        db_order = get_db().get_order_by_id(order_id)
 
         if db_order:
             # Use database order which has cleaned result_code_display
@@ -434,17 +460,17 @@ def history():
 
             if len(valid_imeis) == 1:
                 # Single IMEI search
-                orders = db.get_orders_by_imei(valid_imeis[0])
+                orders = get_db().get_orders_by_imei(valid_imeis[0])
             elif len(valid_imeis) > 1:
                 # Multi-IMEI search
-                orders = db.get_orders_by_imeis(valid_imeis)
+                orders = get_db().get_orders_by_imeis(valid_imeis)
             else:
                 # No valid IMEIs found
                 orders = []
                 flash(f'No valid IMEIs found. Each IMEI must be 15 digits.', 'warning')
         else:
             # Get recent orders (persistent across restarts)
-            orders = db.get_recent_orders(limit=100)
+            orders = get_db().get_recent_orders(limit=100)
 
         # Convert database format to template format
         formatted_orders = []
@@ -498,16 +524,16 @@ def history_export():
             valid_imeis = imeis
 
             if len(valid_imeis) == 1:
-                orders = db.get_orders_by_imei(valid_imeis[0])
+                orders = get_db().get_orders_by_imei(valid_imeis[0])
                 filename = f"orders_{valid_imeis[0]}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv"
             elif len(valid_imeis) > 1:
-                orders = db.get_orders_by_imeis(valid_imeis)
+                orders = get_db().get_orders_by_imeis(valid_imeis)
                 filename = f"orders_multi_{len(valid_imeis)}imeis_{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv"
             else:
                 flash('No valid IMEIs found', 'error')
                 return redirect(url_for('history'))
         else:
-            orders = db.get_recent_orders(limit=10000)  # Export up to 10,000 orders
+            orders = get_db().get_recent_orders(limit=10000)  # Export up to 10,000 orders
             filename = f"orders_export_{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv"
 
         # Create CSV in memory
@@ -571,7 +597,7 @@ def history_sync():
     """Sync order status from GSM Fusion API and update database"""
     try:
         # Get all pending/in-process orders from database
-        pending_orders = db.search_orders_by_status(['Pending', 'In Process', 'pending', 'in process'])
+        pending_orders = get_db().search_orders_by_status(['Pending', 'In Process', 'pending', 'in process'])
 
         print(f"DEBUG: Found {len(pending_orders)} pending orders")
         for order in pending_orders:
@@ -637,7 +663,7 @@ def history_sync():
                 result_data['result_code'] = code_text
 
             # Update order in database with parsed data
-            db.update_order_status(
+            get_db().update_order_status(
                 order_id=api_order.id,
                 status=api_order.status,
                 code=api_order.code,
@@ -680,8 +706,8 @@ def service_detail(service_id):
 def database_view():
     """View database statistics and recent orders"""
     try:
-        stats = db.get_statistics()
-        recent_orders = db.get_recent_orders(limit=20)
+        stats = get_db().get_statistics()
+        recent_orders = get_db().get_recent_orders(limit=20)
 
         return render_template('database.html',
                              stats=stats,
@@ -722,7 +748,7 @@ def database_import():
                     excel_data.append(row_dict)
 
             # Import to database
-            result = db.import_from_hammer_export(excel_data)
+            result = get_db().import_from_hammer_export(excel_data)
 
             flash(f'Import complete: {result["imported"]} orders imported, {result["skipped"]} skipped', 'success')
             return redirect(url_for('database_view'))
@@ -743,7 +769,7 @@ def database_search():
         return redirect(url_for('database_view'))
 
     try:
-        results = db.search_orders(query)
+        results = get_db().search_orders(query)
         return render_template('database_search.html',
                              query=query,
                              results=results)
@@ -771,7 +797,7 @@ def database_export():
         filepath = f'/tmp/{filename}'
 
         # Export to CSV
-        count = db.export_to_csv(filepath, filters)
+        count = get_db().export_to_csv(filepath, filters)
 
         if count == 0:
             flash('No orders to export', 'warning')
@@ -791,7 +817,7 @@ def database_export():
 def database_order_detail(order_id):
     """View order details from database"""
     try:
-        order = db.get_order_by_id(order_id)
+        order = get_db().get_order_by_id(order_id)
 
         if not order:
             flash('Order not found in database', 'error')
@@ -811,7 +837,7 @@ def auto_sync_orders():
     while AUTO_SYNC_ENABLED:
         try:
             # Get all pending/in-process orders from database
-            pending_orders = db.search_orders_by_status(['Pending', 'In Process', 'pending', 'in process'])
+            pending_orders = get_db().search_orders_by_status(['Pending', 'In Process', 'pending', 'in process'])
 
             if pending_orders:
                 order_ids = [order['order_id'] for order in pending_orders if order.get('order_id')]
@@ -879,7 +905,7 @@ def auto_sync_orders():
                             result_data['result_code_display'] = cleaned_code
 
                         # Update order in database - pass both original and cleaned versions
-                        db.update_order_status(
+                        get_db().update_order_status(
                             order_id=api_order.id,
                             status=api_order.status,
                             code=api_order.code,  # Original with HTML tags (record keeping)
