@@ -1,0 +1,106 @@
+{% extends "base.html" %}
+
+{% block title %}Home - SCal Mobile IMEI Checker{% endblock %}
+
+{% block content %}
+<div style="text-align: center; margin-bottom: 60px;">
+    <h2 style="color: #1A1A1A; margin-bottom: 16px; font-weight: 700; font-size: 2em;">Professional IMEI Verification</h2>
+    <p style="color: #757575; font-size: 1.1em; font-weight: 300;">Accurate device status checking powered by GSM Fusion</p>
+</div>
+
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px; margin-bottom: 60px;">
+    <div class="card" style="text-align: center;">
+        <h3 style="color: #1A1A1A; margin-bottom: 15px; font-weight: 600;">Quick Submit</h3>
+        <p style="color: #757575; margin-bottom: 24px; font-weight: 300;">Submit an IMEI order instantly</p>
+        <a href="/submit" class="btn">Submit Order</a>
+    </div>
+
+    <div class="card" style="text-align: center;">
+        <h3 style="color: #1A1A1A; margin-bottom: 15px; font-weight: 600;">Browse Services</h3>
+        <p style="color: #757575; margin-bottom: 24px; font-weight: 300;">View all {{ total_services }} available services</p>
+        <a href="/services" class="btn">View Services</a>
+    </div>
+
+    <div class="card" style="text-align: center;">
+        <h3 style="color: #1A1A1A; margin-bottom: 15px; font-weight: 600;">Order History</h3>
+        <p style="color: #757575; margin-bottom: 24px; font-weight: 300;">Check your recent submissions</p>
+        <a href="/history" class="btn">View History</a>
+    </div>
+</div>
+
+<div class="card">
+    <h3 style="color: #1A1A1A; margin-bottom: 24px; font-weight: 600;">Popular Services</h3>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Service ID</th>
+                <th>Service Name</th>
+                <th>Price</th>
+                <th>Delivery</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for service in services %}
+            <tr>
+                <td><span class="badge badge-info">{{ service.package_id }}</span></td>
+                <td>{{ service.title[:80] }}{% if service.title|length > 80 %}...{% endif %}</td>
+                <td><strong>${{ service.price }}</strong></td>
+                <td>{{ service.delivery_time }}</td>
+                <td>
+                    <a href="/service/{{ service.package_id }}" class="btn" style="padding: 6px 12px; font-size: 0.9em;">Details</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{% if recent_orders %}
+<div class="card">
+    <h3 style="color: #1A1A1A; margin-bottom: 24px; font-weight: 600;">Recent Orders</h3>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Order ID</th>
+                <th>IMEI</th>
+                <th>Status</th>
+                <th>Time</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for order in recent_orders[:5] %}
+            <tr>
+                <td><span class="badge badge-info">{{ order.order_id }}</span></td>
+                <td>{{ order.imei }}</td>
+                <td>
+                    {% if order.status.lower() == 'completed' %}
+                        <span class="badge badge-success">{{ order.status }}</span>
+                    {% elif order.status.lower() == 'pending' or order.status.lower() == 'in process' %}
+                        <span class="badge badge-warning">{{ order.status }}</span>
+                    {% else %}
+                        <span class="badge badge-danger">{{ order.status }}</span>
+                    {% endif %}
+                </td>
+                <td>{{ order.timestamp }}</td>
+                <td>
+                    <a href="/status/{{ order.order_id }}" class="btn" style="padding: 6px 12px; font-size: 0.9em;">View</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endif %}
+
+<div class="card" style="border: 2px solid #2C2C2C;">
+    <h3 style="color: #1A1A1A; margin-bottom: 20px; font-weight: 600;">How It Works</h3>
+    <ol style="color: #1A1A1A; line-height: 2; padding-left: 20px; font-weight: 300;">
+        <li><strong style="font-weight: 600;">Browse Services:</strong> Find the service you need from 236+ available options</li>
+        <li><strong style="font-weight: 600;">Submit IMEI:</strong> Enter your IMEI and select the service</li>
+        <li><strong style="font-weight: 600;">Track Progress:</strong> Monitor your order status in real-time</li>
+        <li><strong style="font-weight: 600;">Get Results:</strong> View detailed results when order completes</li>
+    </ol>
+</div>
+{% endblock %}

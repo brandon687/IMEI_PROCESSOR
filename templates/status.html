@@ -1,0 +1,147 @@
+{% extends "base.html" %}
+
+{% block title %}Order Status - {{ order.id }}{% endblock %}
+
+{% block content %}
+<div style="max-width: 900px; margin: 0 auto;">
+    <h2 style="color: #333; margin-bottom: 30px; text-align: center;">📦 Order Status</h2>
+
+    <div class="card" style="border: 2px solid #667eea;">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
+            <div>
+                <strong style="color: #666;">Order ID:</strong>
+                <p style="font-size: 1.2em; color: #333; margin-top: 5px;">
+                    <span class="badge badge-info" style="font-size: 1em;">{{ order.id }}</span>
+                </p>
+            </div>
+            <div>
+                <strong style="color: #666;">Status:</strong>
+                <p style="font-size: 1.2em; margin-top: 5px;">
+                    {% if order.status.lower() == 'completed' %}
+                        <span class="badge badge-success" style="font-size: 1em;">✓ {{ order.status }}</span>
+                    {% elif order.status.lower() == 'pending' or order.status.lower() == 'in process' %}
+                        <span class="badge badge-warning" style="font-size: 1em;">⏳ {{ order.status }}</span>
+                    {% elif order.status.lower() == 'rejected' %}
+                        <span class="badge badge-danger" style="font-size: 1em;">✗ {{ order.status }}</span>
+                    {% else %}
+                        <span class="badge badge-info" style="font-size: 1em;">{{ order.status }}</span>
+                    {% endif %}
+                </p>
+            </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+            <div>
+                <strong style="color: #666;">IMEI:</strong>
+                <p style="color: #333; margin-top: 5px;">{{ order.imei }}</p>
+            </div>
+            <div>
+                <strong style="color: #666;">Service:</strong>
+                <p style="color: #333; margin-top: 5px;">{{ order.package }}</p>
+            </div>
+        </div>
+
+        {% if order.requested_at %}
+        <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid #e0e0e0;">
+            <strong style="color: #666;">Requested At:</strong>
+            <p style="color: #333; margin-top: 5px;">{{ order.requested_at }}</p>
+        </div>
+        {% endif %}
+    </div>
+
+    {% if order.status.lower() == 'completed' and order.code %}
+    <div class="card" style="background: #d4edda; border: 2px solid #28a745;">
+        <h3 style="color: #155724; margin-bottom: 20px;">✅ Order Results</h3>
+        <div style="background: white; padding: 20px; border-radius: 6px; white-space: pre-wrap; word-wrap: break-word; font-family: 'Courier New', monospace; max-height: 500px; overflow-y: auto;">{{ order.code }}</div>
+        <div style="margin-top: 20px;">
+            <button onclick="copyResults()" class="btn" style="padding: 8px 16px;">📋 Copy Results</button>
+        </div>
+    </div>
+    {% elif order.status.lower() == 'pending' or order.status.lower() == 'in process' %}
+    <div class="card" style="background: #fff3cd; border: 2px solid #ffc107;">
+        <h3 style="color: #856404; margin-bottom: 15px;">⏳ Order In Progress</h3>
+        <p style="color: #856404; line-height: 1.6;">
+            Your order is being processed. This page will automatically refresh every 10 seconds until the order is completed.
+        </p>
+        <div style="margin-top: 20px;">
+            <div class="progress-bar"></div>
+        </div>
+    </div>
+    {% elif order.status.lower() == 'rejected' %}
+    <div class="card" style="background: #f8d7da; border: 2px solid #dc3545;">
+        <h3 style="color: #721c24; margin-bottom: 15px;">❌ Order Rejected</h3>
+        <p style="color: #721c24; line-height: 1.6;">
+            This order was rejected. {% if order.code %}Reason: {{ order.code }}{% endif %}
+        </p>
+    </div>
+    {% endif %}
+
+    <div style="display: flex; gap: 15px; margin-top: 20px;">
+        <a href="/submit" class="btn" style="flex: 1; text-align: center;">Submit Another Order</a>
+        <a href="/history" class="btn btn-secondary" style="flex: 1; text-align: center;">View History</a>
+        <button onclick="location.reload()" class="btn btn-secondary" style="flex: 1;">🔄 Refresh</button>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .progress-bar {
+        width: 100%;
+        height: 6px;
+        background: #e0e0e0;
+        border-radius: 3px;
+        overflow: hidden;
+        position: relative;
+    }
+
+    .progress-bar::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        height: 100%;
+        width: 30%;
+        background: linear-gradient(90deg, #667eea, #764ba2);
+        animation: progress 2s infinite;
+    }
+
+    @keyframes progress {
+        0% { left: -30%; }
+        100% { left: 100%; }
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Auto-refresh if order is pending or in process
+    {% if order.status.lower() == 'pending' or order.status.lower() == 'in process' %}
+    let refreshInterval = setInterval(function() {
+        fetch('/api/check_status/{{ order.id }}')
+            .then(response => response.json())
+            .then(data => {
+                if (data.status && data.status.toLowerCase() === 'completed') {
+                    location.reload();
+                }
+            })
+            .catch(error => console.error('Error checking status:', error));
+    }, 10000); // Check every 10 seconds
+
+    // Stop auto-refresh when leaving page
+    window.addEventListener('beforeunload', function() {
+        clearInterval(refreshInterval);
+    });
+    {% endif %}
+
+    // Copy results function
+    function copyResults() {
+        const resultsText = document.querySelector('.card pre, .card div[style*="font-family"]').textContent;
+        navigator.clipboard.writeText(resultsText).then(function() {
+            alert('Results copied to clipboard!');
+        }, function() {
+            alert('Failed to copy results');
+        });
+    }
+</script>
+{% endblock %}

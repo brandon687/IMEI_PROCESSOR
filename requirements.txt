@@ -1,0 +1,22 @@
+# GSM Fusion API Client Requirements
+
+# Core dependencies
+requests>=2.31.0
+urllib3>=2.0.0
+
+# Web framework
+Flask>=2.3.0
+
+# Production server
+gunicorn>=21.2.0
+
+# CLI and formatting
+tabulate>=0.9.0
+
+# Excel support
+pandas>=2.0.0
+openpyxl>=3.1.0
+
+# Enhanced features
+python-dotenv>=1.0.0  # For .env file support
+tqdm>=4.65.0          # Better progress bars

@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+
+{% block title %}Batch Upload - SCal Mobile IMEI Checker{% endblock %}
+
+{% block content %}
+<div style="max-width: 900px; margin: 0 auto;">
+    <h2 style="color: #1A1A1A; margin-bottom: 40px; text-align: center; font-weight: 700;">Batch Upload CSV File</h2>
+
+    <div class="card">
+        <h3 style="color: #1A1A1A; margin-bottom: 24px; font-weight: 600;">Upload Your CSV File</h3>
+
+        <form method="POST" action="/batch" enctype="multipart/form-data">
+            <div class="form-group">
+                <label for="csv_file">CSV File *</label>
+                <input type="file"
+                       id="csv_file"
+                       name="csv_file"
+                       accept=".csv"
+                       required
+                       style="padding: 10px;">
+                <small style="color: #757575; display: block; margin-top: 5px;">
+                    File must be CSV format with "IMEI" header in column A (row 1)
+                </small>
+            </div>
+
+            <div class="form-group">
+                <label for="service_id">Select Service *</label>
+                <select id="service_id" name="service_id" required>
+                    <option value="">-- Choose a service --</option>
+                    <optgroup label="Recommended Services">
+                        {% for service in services %}
+                        <option value="{{ service.package_id }}">
+                            [{{ service.package_id }}] {{ service.title }} - ${{ service.price }} ({{ service.delivery_time }})
+                        </option>
+                        {% endfor %}
+                    </optgroup>
+                </select>
+                <small style="color: #757575; display: block; margin-top: 5px;">
+                    All IMEIs in the file will be processed with this service
+                </small>
+            </div>
+
+            <div style="display: flex; gap: 15px; margin-top: 30px;">
+                <button type="submit" class="btn" style="flex: 1;">Upload and Process</button>
+                <a href="/submit" class="btn btn-secondary" style="flex: 1; text-align: center; line-height: 1.2;">Cancel</a>
+            </div>
+        </form>
+    </div>
+
+    <div class="card" style="margin-top: 30px;">
+        <h3 style="color: #1A1A1A; margin-bottom: 20px; font-weight: 600;">CSV File Format</h3>
+
+        <p style="color: #1A1A1A; margin-bottom: 20px; font-weight: 600;">Required Format:</p>
+
+        <div style="background: #F9F9F9; padding: 20px; border: 2px solid #E0E0E0; margin-bottom: 20px;">
+            <pre style="margin: 0; font-family: 'Courier New', monospace; color: #1A1A1A; font-weight: 300;">IMEI
+353370080089458
+353990097369512
+123456789012345
+111111111111111</pre>
+        </div>
+
+        <ul style="color: #1A1A1A; line-height: 2; padding-left: 20px; font-weight: 300;">
+            <li><strong style="font-weight: 600;">Row 1, Column A:</strong> Must contain header "IMEI" (case-insensitive)</li>
+            <li><strong style="font-weight: 600;">Rows 2+, Column A:</strong> 15-digit IMEI numbers</li>
+            <li><strong style="font-weight: 600;">Other columns:</strong> Will be ignored (you can have other data)</li>
+            <li><strong style="font-weight: 600;">Empty rows:</strong> Will be skipped</li>
+            <li><strong style="font-weight: 600;">Invalid IMEIs:</strong> Will be reported but won't stop processing</li>
+        </ul>
+    </div>
+
+    <div class="card" style="border: 2px solid #2C2C2C;">
+        <h3 style="color: #1A1A1A; margin-bottom: 20px; font-weight: 600;">Processing Details</h3>
+        <ul style="color: #1A1A1A; line-height: 2; padding-left: 20px; font-weight: 300;">
+            <li><strong style="font-weight: 600;">Processing:</strong> IMEIs are submitted one at a time</li>
+            <li><strong style="font-weight: 600;">Duplicates:</strong> Will be flagged but won't fail the batch</li>
+            <li><strong style="font-weight: 600;">Errors:</strong> Individual errors won't stop other IMEIs</li>
+            <li><strong style="font-weight: 600;">Results:</strong> Complete summary shown after processing</li>
+            <li><strong style="font-weight: 600;">Order History:</strong> All successful orders saved to history</li>
+        </ul>
+    </div>
+
+    <div class="card">
+        <h3 style="color: #1A1A1A; margin-bottom: 20px; font-weight: 600;">Tips</h3>
+        <ul style="color: #1A1A1A; line-height: 2; padding-left: 20px; font-weight: 300;">
+            <li><strong style="font-weight: 600;">Excel Users:</strong> Save your file as "CSV (Comma delimited)" format</li>
+            <li><strong style="font-weight: 600;">Google Sheets:</strong> File → Download → Comma Separated Values (.csv)</li>
+            <li><strong style="font-weight: 600;">Large Files:</strong> Processing time depends on number of IMEIs (~ 1-2 seconds per IMEI)</li>
+            <li><strong style="font-weight: 600;">Cost:</strong> Each IMEI will be charged according to the service price</li>
+            <li><strong style="font-weight: 600;">Best Practice:</strong> Test with 2-3 IMEIs first before uploading large batches</li>
+        </ul>
+    </div>
+
+    <div style="margin-top: 40px; text-align: center;">
+        <p style="color: #757575; font-weight: 300;">
+            Need to submit just one IMEI? <a href="/submit" style="color: #2C2C2C; font-weight: 600; text-decoration: underline;">Use single submission</a>
+        </p>
+    </div>
+</div>
+{% endblock %}

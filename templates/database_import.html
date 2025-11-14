@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+
+{% block title %}Import Data - SCal Mobile IMEI Checker{% endblock %}
+
+{% block content %}
+<div style="max-width: 800px; margin: 0 auto;">
+    <h2 style="color: #1A1A1A; margin-bottom: 40px; text-align: center; font-weight: 700;">Import Hammer Fusion Export</h2>
+
+    <div class="card">
+        <h3 style="color: #1A1A1A; margin-bottom: 24px; font-weight: 600;">Upload Excel File</h3>
+
+        <form method="POST" action="/database/import" enctype="multipart/form-data">
+            <div class="form-group">
+                <label for="excel_file">Hammer Fusion Export File (.xlsx) *</label>
+                <input type="file"
+                       id="excel_file"
+                       name="excel_file"
+                       accept=".xlsx,.xls"
+                       required
+                       style="padding: 10px;">
+                <small style="color: #757575; display: block; margin-top: 5px;">
+                    Download "Advanced Report" from Hammer Fusion and upload the Excel file here
+                </small>
+            </div>
+
+            <div style="display: flex; gap: 15px; margin-top: 30px;">
+                <button type="submit" class="btn" style="flex: 1;">Import Data</button>
+                <a href="/database" class="btn btn-secondary" style="flex: 1; text-align: center; line-height: 1.2;">Cancel</a>
+            </div>
+        </form>
+    </div>
+
+    <div class="card" style="margin-top: 30px;">
+        <h3 style="color: #1A1A1A; margin-bottom: 20px; font-weight: 600;">How to Export from Hammer Fusion</h3>
+        <ol style="color: #1A1A1A; line-height: 2; padding-left: 20px; font-weight: 300;">
+            <li><strong style="font-weight: 600;">Login to Hammer Fusion:</strong> Go to hammerfusion.com and sign in</li>
+            <li><strong style="font-weight: 600;">Navigate to Orders:</strong> Click on "IMEI Orders" in the menu</li>
+            <li><strong style="font-weight: 600;">Export Report:</strong> Click "Advanced Report" or "Export" button</li>
+            <li><strong style="font-weight: 600;">Download Excel:</strong> Save the .xlsx file to your computer</li>
+            <li><strong style="font-weight: 600;">Upload Here:</strong> Use the form above to import the data</li>
+        </ol>
+    </div>
+
+    <div class="card" style="border: 2px solid #2C2C2C;">
+        <h3 style="color: #1A1A1A; margin-bottom: 20px; font-weight: 600;">What Gets Imported</h3>
+        <ul style="color: #1A1A1A; line-height: 2; padding-left: 20px; font-weight: 300;">
+            <li><strong style="font-weight: 600;">IMEI Numbers:</strong> Primary identifier for each device</li>
+            <li><strong style="font-weight: 600;">Service Information:</strong> Which service was used for the check</li>
+            <li><strong style="font-weight: 600;">Device Details:</strong> Model, carrier, SIM lock status</li>
+            <li><strong style="font-weight: 600;">Results:</strong> FMI status, complete result codes</li>
+            <li><strong style="font-weight: 600;">Order Metadata:</strong> Status, date, credits used</li>
+        </ul>
+    </div>
+
+    <div class="card" style="background: #FAFAFA;">
+        <h3 style="color: #1A1A1A; margin-bottom: 20px; font-weight: 600;">Import Notes</h3>
+        <ul style="color: #757575; line-height: 1.8; padding-left: 20px; font-weight: 300;">
+            <li>Duplicate orders (same IMEI + date) will be skipped automatically</li>
+            <li>All imported data is stored locally in your database</li>
+            <li>You can import multiple export files - duplicates are handled</li>
+            <li>Import is safe - it won't modify existing records</li>
+        </ul>
+    </div>
+</div>
+{% endblock %}

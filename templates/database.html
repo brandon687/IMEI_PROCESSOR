@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+
+{% block title %}Database - SCal Mobile IMEI Checker{% endblock %}
+
+{% block content %}
+<div style="max-width: 1200px; margin: 0 auto;">
+    <h2 style="color: #1A1A1A; margin-bottom: 40px; text-align: center; font-weight: 700;">IMEI Orders Database</h2>
+
+    <!-- Statistics -->
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 40px;">
+        <div class="card" style="text-align: center; border: 2px solid #2C2C2C;">
+            <h3 style="color: #1A1A1A; font-size: 2.5em; margin-bottom: 10px; font-weight: 700;">{{ stats.total_orders }}</h3>
+            <p style="color: #757575; font-weight: 300;">Total Orders</p>
+        </div>
+
+        <div class="card" style="text-align: center;">
+            <h3 style="color: #1A1A1A; font-size: 2.5em; margin-bottom: 10px; font-weight: 700;">${{ "%.2f"|format(stats.total_credits) }}</h3>
+            <p style="color: #757575; font-weight: 300;">Total Credits</p>
+        </div>
+
+        <div class="card" style="text-align: center;">
+            <h3 style="color: #1A1A1A; font-size: 2.5em; margin-bottom: 10px; font-weight: 700;">{{ stats.orders_today }}</h3>
+            <p style="color: #757575; font-weight: 300;">Orders Today</p>
+        </div>
+    </div>
+
+    <!-- Actions -->
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin-bottom: 40px;">
+        <div class="card" style="text-align: center;">
+            <h3 style="color: #1A1A1A; margin-bottom: 15px; font-weight: 600;">Import Data</h3>
+            <p style="color: #757575; margin-bottom: 20px; font-weight: 300;">Upload Hammer Fusion export file</p>
+            <a href="/database/import" class="btn">Import Excel File</a>
+        </div>
+
+        <div class="card" style="text-align: center;">
+            <h3 style="color: #1A1A1A; margin-bottom: 15px; font-weight: 600;">Export Data</h3>
+            <p style="color: #757575; margin-bottom: 20px; font-weight: 300;">Download all orders as CSV</p>
+            <a href="/database/export" class="btn">Export to CSV</a>
+        </div>
+
+        <div class="card" style="text-align: center;">
+            <h3 style="color: #1A1A1A; margin-bottom: 15px; font-weight: 600;">Search</h3>
+            <form method="GET" action="/database/search" style="margin-top: 15px;">
+                <input type="text" name="q" placeholder="Search IMEI, model, carrier..." style="width: 100%; padding: 10px; border: 2px solid #E0E0E0; margin-bottom: 10px;">
+                <button type="submit" class="btn" style="width: 100%;">Search</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Orders by Status -->
+    {% if stats.by_status %}
+    <div class="card">
+        <h3 style="color: #1A1A1A; margin-bottom: 20px; font-weight: 600;">Orders by Status</h3>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px;">
+            {% for status, count in stats.by_status.items() %}
+            <div style="padding: 15px; background: #F9F9F9; border: 1px solid #E0E0E0; text-align: center;">
+                <div style="font-size: 1.5em; font-weight: 700; color: #1A1A1A; margin-bottom: 5px;">{{ count }}</div>
+                <div style="color: #757575; font-size: 0.9em;">{{ status or 'Unknown' }}</div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Recent Orders -->
+    <div class="card">
+        <h3 style="color: #1A1A1A; margin-bottom: 20px; font-weight: 600;">Recent Orders (Last 20)</h3>
+
+        {% if recent_orders %}
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>#ID</th>
+                    <th>STATUS</th>
+                    <th>SERVICE</th>
+                    <th>IMEI #</th>
+                    <th>CODE</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for order in recent_orders %}
+                <tr>
+                    <td><span class="badge badge-info">{{ order.order_id or 'N/A' }}</span></td>
+                    <td>
+                        {% if order.status == 'Completed' %}
+                            <span class="badge badge-success">{{ order.status }}</span>
+                        {% elif order.status in ['Pending', 'In Process'] %}
+                            <span class="badge badge-warning">{{ order.status }}</span>
+                        {% else %}
+                            <span class="badge badge-danger">{{ order.status or 'Unknown' }}</span>
+                        {% endif %}
+                    </td>
+                    <td style="font-size: 0.75em; max-width: 250px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="{{ order.service_name }}">{{ order.service_name or order.service_id or 'N/A' }}</td>
+                    <td style="font-family: monospace;"><strong>{{ order.imei }}</strong></td>
+                    <td style="font-size: 0.85em; max-width: 300px; white-space: pre-line; line-height: 1.4;">{{ order.result_code_display or order.result_code or 'N/A' }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <p style="color: #757575; text-align: center; padding: 40px;">No orders in database yet. Import a Hammer Fusion export file to get started.</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

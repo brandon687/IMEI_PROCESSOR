@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+
+{% block title %}All Services - GSM Fusion API Tester{% endblock %}
+
+{% block content %}
+<h2 style="color: #333; margin-bottom: 30px; text-align: center;">📋 All Services ({{ services|length }} total)</h2>
+
+<div class="card" style="margin-bottom: 20px;">
+    <form method="GET" action="/services" style="display: flex; gap: 15px; align-items: end;">
+        <div class="form-group" style="flex: 2; margin-bottom: 0;">
+            <label for="search">Search Services</label>
+            <input type="text"
+                   id="search"
+                   name="search"
+                   placeholder="Search by name or keyword..."
+                   value="{{ search if search else '' }}">
+        </div>
+        <div class="form-group" style="flex: 1; margin-bottom: 0;">
+            <label for="category">Filter by Category</label>
+            <select id="category" name="category">
+                <option value="">All Categories</option>
+                {% for cat in categories|sort %}
+                <option value="{{ cat }}" {% if selected_category == cat %}selected{% endif %}>{{ cat }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <button type="submit" class="btn" style="padding: 12px 24px;">Search</button>
+        <a href="/services" class="btn btn-secondary" style="padding: 12px 24px; text-decoration: none;">Clear</a>
+    </form>
+</div>
+
+{% if services %}
+<div class="card">
+    <table class="table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Service Name</th>
+                <th>Category</th>
+                <th>Price</th>
+                <th>Delivery</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for service in services %}
+            <tr>
+                <td><span class="badge badge-info">{{ service.package_id }}</span></td>
+                <td>{{ service.title[:100] }}{% if service.title|length > 100 %}...{% endif %}</td>
+                <td><small>{{ service.category }}</small></td>
+                <td><strong>${{ service.price }}</strong></td>
+                <td>{{ service.delivery_time }}</td>
+                <td>
+                    <a href="/service/{{ service.package_id }}" class="btn" style="padding: 6px 12px; font-size: 0.9em;">Details</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+<div class="card" style="text-align: center; padding: 40px;">
+    <h3 style="color: #666;">No services found</h3>
+    <p style="color: #999; margin-top: 10px;">Try adjusting your search or filter</p>
+    <a href="/services" class="btn" style="margin-top: 20px;">View All Services</a>
+</div>
+{% endif %}
+{% endblock %}

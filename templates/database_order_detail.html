@@ -1,0 +1,124 @@
+{% extends "base.html" %}
+
+{% block title %}Order Details - SCal Mobile IMEI Checker{% endblock %}
+
+{% block content %}
+<div style="max-width: 900px; margin: 0 auto;">
+    <h2 style="color: #1A1A1A; margin-bottom: 40px; text-align: center; font-weight: 700;">Order Details</h2>
+
+    <div style="margin-bottom: 30px; text-align: center;">
+        <a href="/database" class="btn btn-secondary">Back to Database</a>
+    </div>
+
+    <div class="card" style="border: 2px solid #2C2C2C;">
+        <h3 style="color: #1A1A1A; margin-bottom: 30px; font-weight: 600;">Order Information</h3>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 30px;">
+            <div>
+                <div style="color: #757575; font-size: 0.9em; margin-bottom: 5px; font-weight: 600;">ORDER ID</div>
+                <div style="font-family: monospace; font-size: 1.1em; color: #1A1A1A;">{{ order.order_id or 'N/A' }}</div>
+            </div>
+
+            <div>
+                <div style="color: #757575; font-size: 0.9em; margin-bottom: 5px; font-weight: 600;">STATUS</div>
+                <div>
+                    {% if order.status == 'Completed' %}
+                        <span class="badge badge-success" style="font-size: 1em;">{{ order.status }}</span>
+                    {% elif order.status in ['Pending', 'In Process'] %}
+                        <span class="badge badge-warning" style="font-size: 1em;">{{ order.status }}</span>
+                    {% else %}
+                        <span class="badge badge-danger" style="font-size: 1em;">{{ order.status or 'Unknown' }}</span>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div>
+                <div style="color: #757575; font-size: 0.9em; margin-bottom: 5px; font-weight: 600;">ORDER DATE</div>
+                <div style="color: #1A1A1A;">{{ order.order_date or 'N/A' }}</div>
+            </div>
+
+            <div>
+                <div style="color: #757575; font-size: 0.9em; margin-bottom: 5px; font-weight: 600;">CREDITS</div>
+                <div style="color: #1A1A1A; font-size: 1.1em; font-weight: 600;">${{ "%.2f"|format(order.credits) if order.credits else 'N/A' }}</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <h3 style="color: #1A1A1A; margin-bottom: 30px; font-weight: 600;">Device Information</h3>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 30px;">
+            <div>
+                <div style="color: #757575; font-size: 0.9em; margin-bottom: 5px; font-weight: 600;">IMEI</div>
+                <div style="font-family: monospace; font-size: 1.2em; color: #1A1A1A; font-weight: 600;">{{ order.imei }}</div>
+            </div>
+
+            {% if order.imei2 %}
+            <div>
+                <div style="color: #757575; font-size: 0.9em; margin-bottom: 5px; font-weight: 600;">IMEI 2</div>
+                <div style="font-family: monospace; font-size: 1.1em; color: #1A1A1A;">{{ order.imei2 }}</div>
+            </div>
+            {% endif %}
+
+            <div>
+                <div style="color: #757575; font-size: 0.9em; margin-bottom: 5px; font-weight: 600;">MODEL</div>
+                <div style="color: #1A1A1A;">{{ order.model or 'N/A' }}</div>
+            </div>
+
+            <div>
+                <div style="color: #757575; font-size: 0.9em; margin-bottom: 5px; font-weight: 600;">CARRIER</div>
+                <div style="color: #1A1A1A;">{{ order.carrier or 'N/A' }}</div>
+            </div>
+
+            <div>
+                <div style="color: #757575; font-size: 0.9em; margin-bottom: 5px; font-weight: 600;">SIMLOCK</div>
+                <div style="color: #1A1A1A;">{{ order.simlock or 'N/A' }}</div>
+            </div>
+
+            <div>
+                <div style="color: #757575; font-size: 0.9em; margin-bottom: 5px; font-weight: 600;">FIND MY iPHONE (FMI)</div>
+                <div style="color: #1A1A1A; font-weight: 600;">{{ order.fmi or 'N/A' }}</div>
+            </div>
+        </div>
+    </div>
+
+    {% if order.service_name %}
+    <div class="card">
+        <h3 style="color: #1A1A1A; margin-bottom: 20px; font-weight: 600;">Service Used</h3>
+        <p style="color: #1A1A1A;">{{ order.service_name }}</p>
+    </div>
+    {% endif %}
+
+    {% if order.result_code_display or order.result_code %}
+    <div class="card">
+        <h3 style="color: #1A1A1A; margin-bottom: 20px; font-weight: 600;">Full Result Code</h3>
+        <div style="background: #F9F9F9; padding: 20px; border: 1px solid #E0E0E0; font-family: monospace; font-size: 0.9em; line-height: 1.8; white-space: pre-wrap; word-wrap: break-word; color: #1A1A1A;">{{ order.result_code_display or order.result_code }}</div>
+    </div>
+    {% endif %}
+
+    {% if order.notes %}
+    <div class="card">
+        <h3 style="color: #1A1A1A; margin-bottom: 20px; font-weight: 600;">Notes</h3>
+        <p style="color: #1A1A1A;">{{ order.notes }}</p>
+    </div>
+    {% endif %}
+
+    <div class="card" style="background: #FAFAFA;">
+        <h3 style="color: #1A1A1A; margin-bottom: 20px; font-weight: 600;">Database Metadata</h3>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; font-size: 0.9em;">
+            <div>
+                <div style="color: #757575; margin-bottom: 5px;">Created At</div>
+                <div style="color: #1A1A1A;">{{ order.created_at or 'N/A' }}</div>
+            </div>
+            <div>
+                <div style="color: #757575; margin-bottom: 5px;">Updated At</div>
+                <div style="color: #1A1A1A;">{{ order.updated_at or 'N/A' }}</div>
+            </div>
+            <div>
+                <div style="color: #757575; margin-bottom: 5px;">Database ID</div>
+                <div style="color: #1A1A1A; font-family: monospace;">{{ order.id }}</div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

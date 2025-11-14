@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}SCal Mobile - IMEI Checker{% endblock %}</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: #F5F5F5;
+            min-height: 100vh;
+            color: #1A1A1A;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: #F5F5F5;
+        }
+
+        .header {
+            background: #2C2C2C;
+            color: white;
+            padding: 40px 30px;
+            border-bottom: 1px solid #3A3A3A;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 8px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.85;
+            font-weight: 300;
+            color: #D1D1D1;
+        }
+
+        .nav {
+            background: #FFFFFF;
+            padding: 0;
+            border-bottom: 1px solid #E0E0E0;
+        }
+
+        .nav ul {
+            list-style: none;
+            display: flex;
+            gap: 0;
+            max-width: 1200px;
+            margin: 0 auto;
+            justify-content: center;
+        }
+
+        .nav a {
+            color: #2C2C2C;
+            text-decoration: none;
+            font-weight: 500;
+            padding: 18px 24px;
+            display: block;
+            transition: all 0.2s;
+            border-bottom: 3px solid transparent;
+        }
+
+        .nav a:hover {
+            background: #2C2C2C;
+            color: #FFFFFF;
+            border-bottom-color: #2C2C2C;
+        }
+
+        .content {
+            padding: 60px 30px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .alert {
+            padding: 16px 20px;
+            margin-bottom: 24px;
+            border-radius: 2px;
+            font-weight: 400;
+            border-left: 4px solid;
+        }
+
+        .alert-success {
+            background: #FFFFFF;
+            color: #1A1A1A;
+            border-left-color: #2C2C2C;
+        }
+
+        .alert-error {
+            background: #FFFFFF;
+            color: #1A1A1A;
+            border-left-color: #C62828;
+        }
+
+        .alert-warning {
+            background: #FFFFFF;
+            color: #1A1A1A;
+            border-left-color: #F9A825;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 14px 32px;
+            background: #2C2C2C;
+            color: white;
+            text-decoration: none;
+            border-radius: 2px;
+            border: 2px solid #2C2C2C;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            letter-spacing: 0.5px;
+        }
+
+        .btn:hover {
+            background: #3A3A3A;
+            color: #FFFFFF;
+            border-color: #3A3A3A;
+        }
+
+        .btn-secondary {
+            background: #FFFFFF;
+            color: #2C2C2C;
+            border: 2px solid #D0D0D0;
+        }
+
+        .btn-secondary:hover {
+            background: #F5F5F5;
+            color: #2C2C2C;
+            border-color: #2C2C2C;
+        }
+
+        .card {
+            background: #FFFFFF;
+            border: 1px solid #E0E0E0;
+            border-radius: 2px;
+            padding: 30px;
+            margin-bottom: 24px;
+            transition: all 0.2s;
+        }
+
+        .card:hover {
+            border-color: #2C2C2C;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        }
+
+        .form-group {
+            margin-bottom: 24px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: 600;
+            color: #1A1A1A;
+            font-size: 0.95em;
+            letter-spacing: 0.3px;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 14px;
+            border: 2px solid #E0E0E0;
+            border-radius: 2px;
+            font-size: 1em;
+            transition: all 0.2s;
+            background: #FFFFFF;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #2C2C2C;
+            box-shadow: 0 0 0 3px rgba(44, 44, 44, 0.1);
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 6px 14px;
+            border-radius: 2px;
+            font-size: 0.8em;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+
+        .badge-success {
+            background: #28a745;
+            color: white;
+        }
+
+        .badge-warning {
+            background: #F9A825;
+            color: #1A1A1A;
+        }
+
+        .badge-danger {
+            background: #C62828;
+            color: white;
+        }
+
+        .badge-info {
+            background: #757575;
+            color: white;
+        }
+
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 24px;
+            border: 1px solid #E0E0E0;
+            background: #FFFFFF;
+        }
+
+        .table th,
+        .table td {
+            padding: 16px;
+            text-align: left;
+            border-bottom: 1px solid #E0E0E0;
+        }
+
+        .table th {
+            background: #2C2C2C;
+            font-weight: 600;
+            color: #FFFFFF;
+            text-transform: uppercase;
+            font-size: 0.85em;
+            letter-spacing: 0.5px;
+        }
+
+        .table tr:hover {
+            background: #F9F9F9;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 40px 20px;
+            background: #2C2C2C;
+            color: #D1D1D1;
+            border-top: 1px solid #3A3A3A;
+            font-weight: 300;
+        }
+
+        @media (max-width: 768px) {
+            .nav ul {
+                flex-wrap: wrap;
+            }
+
+            .content {
+                padding: 40px 20px;
+            }
+
+            .header {
+                padding: 30px 20px;
+            }
+
+            .header h1 {
+                font-size: 2em;
+            }
+        }
+    </style>
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>SCal Mobile IMEI Checker</h1>
+            <p>Professional IMEI verification and device status checking</p>
+        </div>
+
+        <div class="nav">
+            <ul>
+                <li><a href="/">Home</a></li>
+                <li><a href="/services">Services</a></li>
+                <li><a href="/submit">Submit Order</a></li>
+                <li><a href="/batch">Batch Upload</a></li>
+                <li><a href="/history">Order History</a></li>
+                <li><a href="/database">Database</a></li>
+            </ul>
+        </div>
+
+        <div class="content">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }}">{{ message }}</div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+
+            {% block content %}{% endblock %}
+        </div>
+
+        <div class="footer">
+            <p>&copy; 2025 SCal Mobile | Professional Device Verification Services</p>
+        </div>
+    </div>
+
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

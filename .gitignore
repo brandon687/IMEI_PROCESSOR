@@ -1,0 +1,73 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+pip-wheel-metadata/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtual Environment
+venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+
+# Credentials and Secrets
+.env
+*.key
+*.pem
+credentials.json
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Test and Coverage
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+
+# Output files
+*.log
+results/
+output/
+batch_results.*
+example_orders.csv
+
+# Database files
+*.db
+*.db-journal
+*.sqlite
+*.sqlite3
+
+# Checkpoint files
+checkpoint_*.json
+
+# Temporary files
+*.tmp
+*.temp
+tmp/
+temp/

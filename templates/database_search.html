@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+
+{% block title %}Search Results - SCal Mobile IMEI Checker{% endblock %}
+
+{% block content %}
+<div style="max-width: 1200px; margin: 0 auto;">
+    <h2 style="color: #1A1A1A; margin-bottom: 20px; text-align: center; font-weight: 700;">Search Results</h2>
+    <p style="text-align: center; color: #757575; margin-bottom: 40px;">Found {{ results|length }} result(s) for "{{ query }}"</p>
+
+    <div style="margin-bottom: 30px; text-align: center;">
+        <a href="/database" class="btn btn-secondary">Back to Database</a>
+    </div>
+
+    {% if results %}
+    <div class="card">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Order ID</th>
+                    <th>IMEI</th>
+                    <th>Model</th>
+                    <th>Carrier</th>
+                    <th>Status</th>
+                    <th>FMI</th>
+                    <th>Date</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for order in results %}
+                <tr>
+                    <td><span class="badge badge-info">{{ order.order_id or 'N/A' }}</span></td>
+                    <td style="font-family: monospace; font-weight: 600;">{{ order.imei }}</td>
+                    <td>{{ order.model or 'N/A' }}</td>
+                    <td>{{ order.carrier or 'N/A' }}</td>
+                    <td>
+                        {% if order.status == 'Completed' %}
+                            <span class="badge badge-success">{{ order.status }}</span>
+                        {% else %}
+                            <span class="badge badge-warning">{{ order.status or 'Unknown' }}</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ order.fmi or 'N/A' }}</td>
+                    <td style="font-size: 0.9em;">{{ order.order_date or 'N/A' }}</td>
+                    <td>
+                        {% if order.order_id %}
+                        <a href="/database/order/{{ order.order_id }}" class="btn" style="padding: 6px 12px; font-size: 0.85em;">View</a>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="card" style="text-align: center; padding: 60px 20px;">
+        <h3 style="color: #757575; margin-bottom: 20px; font-weight: 300;">No results found</h3>
+        <p style="color: #757575; margin-bottom: 30px;">Try searching with a different term</p>
+        <a href="/database" class="btn">Back to Database</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

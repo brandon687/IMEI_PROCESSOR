@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+
+{% block title %}Error - GSM Fusion API Tester{% endblock %}
+
+{% block content %}
+<div style="max-width: 600px; margin: 0 auto; text-align: center;">
+    <div class="card" style="background: #f8d7da; border: 2px solid #dc3545;">
+        <h2 style="color: #721c24; margin-bottom: 20px;">⚠️ Error Occurred</h2>
+        <p style="color: #721c24; font-size: 1.1em; line-height: 1.6;">{{ error }}</p>
+    </div>
+
+    <div style="margin-top: 30px;">
+        <a href="/" class="btn">← Back to Home</a>
+    </div>
+</div>
+{% endblock %}

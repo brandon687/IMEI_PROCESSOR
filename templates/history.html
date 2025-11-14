@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+
+{% block title %}Order History - GSM Fusion API Tester{% endblock %}
+
+{% block content %}
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
+    <h2 style="color: #333; margin: 0;">📊 Order History</h2>
+    <div style="display: flex; gap: 10px;">
+        <a href="/history/sync" class="btn" style="padding: 10px 20px;">🔄 Sync Status</a>
+        {% if orders %}
+        <a href="/history/export{% if search_query %}?imei={{ search_query }}{% endif %}" class="btn" style="padding: 10px 20px; background: #28a745;">📥 Export CSV</a>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Search Box -->
+<div class="card" style="margin-bottom: 20px;">
+    <form method="GET" action="/history">
+        <div style="margin-bottom: 10px;">
+            <label style="display: block; color: #333; font-weight: bold; margin-bottom: 5px;">
+                Search by IMEI(s) - One per line
+            </label>
+            <textarea
+                name="imei"
+                placeholder="Enter IMEIs (one per line):
+353978109238980
+356554104710187
+356867116918840
+..."
+                style="width: 100%; min-height: 120px; padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px; font-family: monospace;"
+            >{{ search_query or '' }}</textarea>
+        </div>
+        <div style="display: flex; gap: 10px; align-items: center;">
+            <button type="submit" class="btn" style="padding: 10px 30px;">🔍 Search</button>
+            {% if search_query %}
+            <a href="/history" class="btn btn-secondary" style="padding: 10px 20px;">✕ Clear</a>
+            {% endif %}
+            <span style="color: #999; font-size: 0.9em;">One IMEI per line (supports 30,000+)</span>
+        </div>
+    </form>
+</div>
+
+<p style="color: #757575; margin-bottom: 20px; text-align: center;">
+    {% if search_query %}
+        {% if search_count > 1 %}
+            Showing {{ orders|length }} order(s) for <strong>{{ search_count }} IMEIs</strong> searched
+        {% else %}
+            Showing {{ orders|length }} order(s) for searched IMEI
+        {% endif %}
+    {% else %}
+        Showing {{ orders|length }} most recent orders from database
+    {% endif %}
+</p>
+
+{% if orders %}
+<div class="card">
+    <table class="table">
+        <thead>
+            <tr>
+                <th>#ID</th>
+                <th>STATUS</th>
+                <th>SERVICE</th>
+                <th>IMEI #</th>
+                <th>CODE</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for order in orders %}
+            <tr>
+                <td style="font-weight: 600; color: #666;">{{ order.order_id }}</td>
+                <td>
+                    {% if order.status.lower() == 'completed' %}
+                        <span class="badge badge-success">{{ order.status }}</span>
+                    {% elif order.status.lower() == 'pending' or order.status.lower() == 'in process' %}
+                        <span class="badge badge-warning">{{ order.status }}</span>
+                    {% else %}
+                        <span class="badge badge-danger">{{ order.status }}</span>
+                    {% endif %}
+                </td>
+                <td style="font-size: 0.75em; max-width: 250px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="{{ order.service_name }}">{{ order.service_name or order.service_id or '-' }}</td>
+                <td><strong>{{ order.imei }}</strong></td>
+                <td style="font-size: 0.85em; max-width: 300px; white-space: pre-line; line-height: 1.4;">{{ order.result_code_display or order.result_code or '-' }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+<div class="card" style="text-align: center; padding: 60px;">
+    <h3 style="color: #666; margin-bottom: 15px;">No orders yet</h3>
+    <p style="color: #999; margin-bottom: 30px;">Submit your first order to get started</p>
+    <a href="/submit" class="btn">Submit Order</a>
+</div>
+{% endif %}
+
+<div style="margin-top: 20px;">
+    <a href="/" class="btn btn-secondary">← Back to Home</a>
+</div>
+{% endblock %}
