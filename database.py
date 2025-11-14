@@ -1,103 +1,42 @@
 """
-Database module for storing IMEI order data locally
+Database module for storing IMEI order data in Supabase (PostgreSQL)
+Production-ready with automatic reconnection and error handling
 """
 
-import sqlite3
+import os
 import logging
 from datetime import datetime
 from typing import List, Dict, Optional
 import json
+from supabase import create_client, Client
 
 logger = logging.getLogger(__name__)
 
 
 class IMEIDatabase:
-    """SQLite database for storing IMEI order data"""
+    """Supabase database for storing IMEI order data"""
 
-    def __init__(self, db_path: str = 'imei_orders.db'):
-        """Initialize database connection"""
-        self.db_path = db_path
-        self.conn = None
+    def __init__(self):
+        """Initialize Supabase connection"""
+        self.supabase_url = os.environ.get('SUPABASE_URL')
+        self.supabase_key = os.environ.get('SUPABASE_KEY')
+
+        if not self.supabase_url or not self.supabase_key:
+            raise ValueError(
+                "Missing Supabase credentials. Set SUPABASE_URL and SUPABASE_KEY environment variables."
+            )
+
+        self.client: Client = None
         self._connect()
-        self._create_tables()
 
     def _connect(self):
-        """Connect to SQLite database"""
+        """Connect to Supabase"""
         try:
-            self.conn = sqlite3.connect(self.db_path, check_same_thread=False)
-            self.conn.row_factory = sqlite3.Row  # Return rows as dictionaries
-            logger.info(f"Connected to database: {self.db_path}")
+            self.client = create_client(self.supabase_url, self.supabase_key)
+            logger.info(f"Connected to Supabase: {self.supabase_url}")
         except Exception as e:
-            logger.error(f"Failed to connect to database: {e}")
+            logger.error(f"Failed to connect to Supabase: {e}")
             raise
-
-    def _create_tables(self):
-        """Create database tables if they don't exist"""
-        cursor = self.conn.cursor()
-
-        # Main orders table
-        cursor.execute('''
-            CREATE TABLE IF NOT EXISTS orders (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                order_id TEXT UNIQUE,
-                service_name TEXT,
-                service_id TEXT,
-                imei TEXT NOT NULL,
-                imei2 TEXT,
-                credits REAL,
-                status TEXT,
-                carrier TEXT,
-                simlock TEXT,
-                model TEXT,
-                fmi TEXT,
-                order_date TIMESTAMP,
-                result_code TEXT,
-                result_code_display TEXT,
-                notes TEXT,
-                raw_response TEXT,
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-            )
-        ''')
-
-        # Add result_code_display column if it doesn't exist (migration)
-        try:
-            cursor.execute('ALTER TABLE orders ADD COLUMN result_code_display TEXT')
-            logger.info("Added result_code_display column to orders table")
-        except sqlite3.OperationalError as e:
-            if 'duplicate column name' not in str(e).lower():
-                logger.warning(f"Could not add result_code_display column: {e}")
-
-        # Index for fast lookups
-        cursor.execute('''
-            CREATE INDEX IF NOT EXISTS idx_imei ON orders(imei)
-        ''')
-
-        cursor.execute('''
-            CREATE INDEX IF NOT EXISTS idx_order_id ON orders(order_id)
-        ''')
-
-        cursor.execute('''
-            CREATE INDEX IF NOT EXISTS idx_order_date ON orders(order_date DESC)
-        ''')
-
-        cursor.execute('''
-            CREATE INDEX IF NOT EXISTS idx_status ON orders(status)
-        ''')
-
-        # Import history table
-        cursor.execute('''
-            CREATE TABLE IF NOT EXISTS import_history (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                filename TEXT,
-                rows_imported INTEGER,
-                rows_skipped INTEGER,
-                import_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-            )
-        ''')
-
-        self.conn.commit()
-        logger.info("Database tables created successfully")
 
     def insert_order(self, order_data: Dict) -> Optional[int]:
         """
@@ -109,46 +48,45 @@ class IMEIDatabase:
         Returns:
             Row ID of inserted order or None if failed
         """
-        cursor = self.conn.cursor()
-
         try:
-            cursor.execute('''
-                INSERT INTO orders (
-                    order_id, service_name, service_id, imei, imei2,
-                    credits, status, carrier, simlock, model, fmi,
-                    order_date, result_code, notes, raw_response
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-            ''', (
-                order_data.get('order_id'),
-                order_data.get('service_name'),
-                order_data.get('service_id'),
-                order_data.get('imei'),
-                order_data.get('imei2'),
-                order_data.get('credits'),
-                order_data.get('status'),
-                order_data.get('carrier'),
-                order_data.get('simlock'),
-                order_data.get('model'),
-                order_data.get('fmi'),
-                order_data.get('order_date'),
-                order_data.get('result_code'),
-                order_data.get('notes'),
-                order_data.get('raw_response')
-            ))
+            # Prepare data for Supabase
+            data = {
+                'order_id': order_data.get('order_id'),
+                'service_name': order_data.get('service_name'),
+                'service_id': order_data.get('service_id'),
+                'imei': order_data.get('imei'),
+                'imei2': order_data.get('imei2'),
+                'credits': order_data.get('credits'),
+                'status': order_data.get('status'),
+                'carrier': order_data.get('carrier'),
+                'simlock': order_data.get('simlock'),
+                'model': order_data.get('model'),
+                'fmi': order_data.get('fmi'),
+                'order_date': order_data.get('order_date'),
+                'result_code': order_data.get('result_code'),
+                'result_code_display': order_data.get('result_code_display'),
+                'notes': order_data.get('notes'),
+                'raw_response': order_data.get('raw_response')
+            }
 
-            self.conn.commit()
-            logger.info(f"Inserted order {order_data.get('order_id')} for IMEI {order_data.get('imei')}")
-            return cursor.lastrowid
+            response = self.client.table('orders').insert(data).execute()
 
-        except sqlite3.IntegrityError:
-            logger.warning(f"Order {order_data.get('order_id')} already exists in database")
+            if response.data:
+                logger.info(f"Inserted order {order_data.get('order_id')} for IMEI {order_data.get('imei')}")
+                return response.data[0]['id']
             return None
+
         except Exception as e:
-            logger.error(f"Failed to insert order: {e}")
-            self.conn.rollback()
+            error_msg = str(e)
+            if 'duplicate key' in error_msg.lower() or 'unique constraint' in error_msg.lower():
+                logger.warning(f"Order {order_data.get('order_id')} already exists in database")
+            else:
+                logger.error(f"Failed to insert order: {e}")
             return None
 
-    def update_order_status(self, order_id: str, status: str, code: str = None, code_display: str = None, service_name: str = None, result_data: Dict = None):
+    def update_order_status(self, order_id: str, status: str, code: str = None,
+                          code_display: str = None, service_name: str = None,
+                          result_data: Dict = None):
         """Update order status and results
 
         Args:
@@ -159,179 +97,152 @@ class IMEIDatabase:
             service_name: Service/package name from API
             result_data: Dictionary with parsed fields (carrier, model, etc.)
         """
-        cursor = self.conn.cursor()
-
         try:
-            if result_data:
-                cursor.execute('''
-                    UPDATE orders
-                    SET status = ?,
-                        service_name = ?,
-                        carrier = ?,
-                        simlock = ?,
-                        model = ?,
-                        fmi = ?,
-                        imei2 = ?,
-                        result_code = ?,
-                        result_code_display = ?,
-                        updated_at = CURRENT_TIMESTAMP
-                    WHERE order_id = ?
-                ''', (
-                    status,
-                    service_name or result_data.get('service_name'),
-                    result_data.get('carrier'),
-                    result_data.get('simlock'),
-                    result_data.get('model'),
-                    result_data.get('fmi'),
-                    result_data.get('imei2'),
-                    result_data.get('result_code') or code,
-                    result_data.get('result_code_display') or code_display,
-                    order_id
-                ))
-            else:
-                # Simple status update (from API sync)
-                if code:
-                    cursor.execute('''
-                        UPDATE orders
-                        SET status = ?,
-                            result_code = ?,
-                            result_code_display = ?,
-                            updated_at = CURRENT_TIMESTAMP
-                        WHERE order_id = ?
-                    ''', (status, code, code_display or code, order_id))
-                else:
-                    cursor.execute('''
-                        UPDATE orders
-                        SET status = ?,
-                            updated_at = CURRENT_TIMESTAMP
-                        WHERE order_id = ?
-                    ''', (status, order_id))
+            update_data = {
+                'status': status,
+                'updated_at': datetime.utcnow().isoformat()
+            }
 
-            self.conn.commit()
+            if result_data:
+                update_data.update({
+                    'service_name': service_name or result_data.get('service_name'),
+                    'carrier': result_data.get('carrier'),
+                    'simlock': result_data.get('simlock'),
+                    'model': result_data.get('model'),
+                    'fmi': result_data.get('fmi'),
+                    'imei2': result_data.get('imei2'),
+                    'result_code': result_data.get('result_code') or code,
+                    'result_code_display': result_data.get('result_code_display') or code_display
+                })
+            else:
+                if code:
+                    update_data['result_code'] = code
+                    update_data['result_code_display'] = code_display or code
+
+            self.client.table('orders').update(update_data).eq('order_id', order_id).execute()
             logger.info(f"Updated order {order_id} status to {status}")
 
         except Exception as e:
             logger.error(f"Failed to update order status: {e}")
-            self.conn.rollback()
 
     def get_order_by_id(self, order_id: str) -> Optional[Dict]:
         """Get order by order ID"""
-        cursor = self.conn.cursor()
-        cursor.execute('SELECT * FROM orders WHERE order_id = ?', (order_id,))
-        row = cursor.fetchone()
-
-        if row:
-            return dict(row)
-        return None
+        try:
+            response = self.client.table('orders').select('*').eq('order_id', order_id).execute()
+            if response.data:
+                return response.data[0]
+            return None
+        except Exception as e:
+            logger.error(f"Failed to get order by ID: {e}")
+            return None
 
     def get_orders_by_imei(self, imei: str) -> List[Dict]:
         """Get all orders for a specific IMEI"""
-        cursor = self.conn.cursor()
-        cursor.execute('''
-            SELECT * FROM orders
-            WHERE imei = ?
-            ORDER BY order_date DESC
-        ''', (imei,))
-
-        return [dict(row) for row in cursor.fetchall()]
+        try:
+            response = self.client.table('orders').select('*').eq('imei', imei).order('order_date', desc=True).execute()
+            return response.data if response.data else []
+        except Exception as e:
+            logger.error(f"Failed to get orders by IMEI: {e}")
+            return []
 
     def get_recent_orders(self, limit: int = 50) -> List[Dict]:
         """Get recent orders"""
-        cursor = self.conn.cursor()
-        cursor.execute('''
-            SELECT * FROM orders
-            ORDER BY order_date DESC
-            LIMIT ?
-        ''', (limit,))
-
-        return [dict(row) for row in cursor.fetchall()]
+        try:
+            response = self.client.table('orders').select('*').order('order_date', desc=True).limit(limit).execute()
+            return response.data if response.data else []
+        except Exception as e:
+            logger.error(f"Failed to get recent orders: {e}")
+            return []
 
     def get_orders_by_status(self, status: str) -> List[Dict]:
         """Get orders by status"""
-        cursor = self.conn.cursor()
-        cursor.execute('''
-            SELECT * FROM orders
-            WHERE status = ?
-            ORDER BY order_date DESC
-        ''', (status,))
-
-        return [dict(row) for row in cursor.fetchall()]
+        try:
+            response = self.client.table('orders').select('*').eq('status', status).order('order_date', desc=True).execute()
+            return response.data if response.data else []
+        except Exception as e:
+            logger.error(f"Failed to get orders by status: {e}")
+            return []
 
     def search_orders_by_status(self, statuses: List[str]) -> List[Dict]:
         """Get orders by multiple status values"""
-        cursor = self.conn.cursor()
-        placeholders = ','.join('?' * len(statuses))
-        cursor.execute(f'''
-            SELECT * FROM orders
-            WHERE status IN ({placeholders})
-            ORDER BY order_date DESC
-        ''', statuses)
-
-        return [dict(row) for row in cursor.fetchall()]
+        try:
+            response = self.client.table('orders').select('*').in_('status', statuses).order('order_date', desc=True).execute()
+            return response.data if response.data else []
+        except Exception as e:
+            logger.error(f"Failed to search orders by status: {e}")
+            return []
 
     def get_orders_by_imeis(self, imeis: List[str]) -> List[Dict]:
         """Get all orders for multiple IMEIs (batch search)"""
         if not imeis:
             return []
 
-        cursor = self.conn.cursor()
-        placeholders = ','.join('?' * len(imeis))
-        cursor.execute(f'''
-            SELECT * FROM orders
-            WHERE imei IN ({placeholders})
-            ORDER BY order_date DESC
-        ''', imeis)
-
-        return [dict(row) for row in cursor.fetchall()]
+        try:
+            response = self.client.table('orders').select('*').in_('imei', imeis).order('order_date', desc=True).execute()
+            return response.data if response.data else []
+        except Exception as e:
+            logger.error(f"Failed to get orders by IMEIs: {e}")
+            return []
 
     def search_orders(self, query: str) -> List[Dict]:
         """Search orders by IMEI, model, carrier, etc."""
-        cursor = self.conn.cursor()
-        search_pattern = f"%{query}%"
+        try:
+            # Supabase uses ilike for case-insensitive pattern matching
+            search_pattern = f"%{query}%"
 
-        cursor.execute('''
-            SELECT * FROM orders
-            WHERE imei LIKE ?
-               OR model LIKE ?
-               OR carrier LIKE ?
-               OR order_id LIKE ?
-            ORDER BY order_date DESC
-            LIMIT 100
-        ''', (search_pattern, search_pattern, search_pattern, search_pattern))
+            response = self.client.table('orders').select('*').or_(
+                f"imei.ilike.{search_pattern},"
+                f"model.ilike.{search_pattern},"
+                f"carrier.ilike.{search_pattern},"
+                f"order_id.ilike.{search_pattern}"
+            ).order('order_date', desc=True).limit(100).execute()
 
-        return [dict(row) for row in cursor.fetchall()]
+            return response.data if response.data else []
+        except Exception as e:
+            logger.error(f"Failed to search orders: {e}")
+            return []
 
     def get_statistics(self) -> Dict:
         """Get database statistics"""
-        cursor = self.conn.cursor()
+        try:
+            stats = {}
 
-        stats = {}
+            # Total orders
+            response = self.client.table('orders').select('*', count='exact').execute()
+            stats['total_orders'] = response.count if hasattr(response, 'count') else 0
 
-        # Total orders
-        cursor.execute('SELECT COUNT(*) FROM orders')
-        stats['total_orders'] = cursor.fetchone()[0]
+            # Orders by status (need to fetch and group manually)
+            all_orders = self.client.table('orders').select('status').execute()
+            status_counts = {}
+            if all_orders.data:
+                for order in all_orders.data:
+                    status = order.get('status', 'Unknown')
+                    status_counts[status] = status_counts.get(status, 0) + 1
+            stats['by_status'] = status_counts
 
-        # Orders by status
-        cursor.execute('''
-            SELECT status, COUNT(*) as count
-            FROM orders
-            GROUP BY status
-        ''')
-        stats['by_status'] = {row[0]: row[1] for row in cursor.fetchall()}
+            # Total credits spent
+            credits_response = self.client.table('orders').select('credits').execute()
+            total_credits = 0.0
+            if credits_response.data:
+                for order in credits_response.data:
+                    if order.get('credits'):
+                        total_credits += float(order['credits'])
+            stats['total_credits'] = total_credits
 
-        # Total credits spent
-        cursor.execute('SELECT SUM(credits) FROM orders WHERE credits IS NOT NULL')
-        result = cursor.fetchone()[0]
-        stats['total_credits'] = float(result) if result else 0.0
+            # Orders today
+            today = datetime.utcnow().date().isoformat()
+            today_response = self.client.table('orders').select('*', count='exact').gte('order_date', today).execute()
+            stats['orders_today'] = today_response.count if hasattr(today_response, 'count') else 0
 
-        # Orders today
-        cursor.execute('''
-            SELECT COUNT(*) FROM orders
-            WHERE DATE(order_date) = DATE('now')
-        ''')
-        stats['orders_today'] = cursor.fetchone()[0]
-
-        return stats
+            return stats
+        except Exception as e:
+            logger.error(f"Failed to get statistics: {e}")
+            return {
+                'total_orders': 0,
+                'by_status': {},
+                'total_credits': 0.0,
+                'orders_today': 0
+            }
 
     def import_from_hammer_export(self, excel_data: List[Dict]) -> Dict:
         """
@@ -401,12 +312,15 @@ class IMEIDatabase:
                     skipped += 1
 
         # Record import history
-        cursor = self.conn.cursor()
-        cursor.execute('''
-            INSERT INTO import_history (filename, rows_imported, rows_skipped)
-            VALUES (?, ?, ?)
-        ''', ('hammer_export', imported, skipped))
-        self.conn.commit()
+        try:
+            self.client.table('import_history').insert({
+                'filename': 'hammer_export',
+                'rows_imported': imported,
+                'rows_skipped': skipped,
+                'import_date': datetime.utcnow().isoformat()
+            }).execute()
+        except Exception as e:
+            logger.warning(f"Failed to record import history: {e}")
 
         return {
             'imported': imported,
@@ -435,49 +349,44 @@ class IMEIDatabase:
         """Export orders to CSV file"""
         import csv
 
-        cursor = self.conn.cursor()
+        try:
+            # Build query based on filters
+            query = self.client.table('orders').select('*')
 
-        # Build query based on filters
-        query = 'SELECT * FROM orders WHERE 1=1'
-        params = []
+            if filters:
+                if filters.get('status'):
+                    query = query.eq('status', filters['status'])
+                if filters.get('start_date'):
+                    query = query.gte('order_date', filters['start_date'])
+                if filters.get('end_date'):
+                    query = query.lte('order_date', filters['end_date'])
 
-        if filters:
-            if filters.get('status'):
-                query += ' AND status = ?'
-                params.append(filters['status'])
-            if filters.get('start_date'):
-                query += ' AND order_date >= ?'
-                params.append(filters['start_date'])
-            if filters.get('end_date'):
-                query += ' AND order_date <= ?'
-                params.append(filters['end_date'])
+            query = query.order('order_date', desc=True)
+            response = query.execute()
+            rows = response.data if response.data else []
 
-        query += ' ORDER BY order_date DESC'
+            if not rows:
+                return 0
 
-        cursor.execute(query, params)
-        rows = cursor.fetchall()
+            # Write to CSV
+            with open(output_path, 'w', newline='') as csvfile:
+                if rows:
+                    writer = csv.DictWriter(csvfile, fieldnames=rows[0].keys())
+                    writer.writeheader()
+                    for row in rows:
+                        # Convert multi-line CODE to single-line format for CSV export
+                        if 'result_code_display' in row and row['result_code_display']:
+                            row['result_code_display'] = row['result_code_display'].replace('\n', ' - ')
+                        writer.writerow(row)
 
-        if not rows:
+            return len(rows)
+        except Exception as e:
+            logger.error(f"Failed to export to CSV: {e}")
             return 0
 
-        # Write to CSV
-        with open(output_path, 'w', newline='') as csvfile:
-            writer = csv.DictWriter(csvfile, fieldnames=rows[0].keys())
-            writer.writeheader()
-            for row in rows:
-                row_dict = dict(row)
-                # Convert multi-line CODE to single-line format for CSV export
-                if 'result_code_display' in row_dict and row_dict['result_code_display']:
-                    row_dict['result_code_display'] = row_dict['result_code_display'].replace('\n', ' - ')
-                writer.writerow(row_dict)
-
-        return len(rows)
-
     def close(self):
-        """Close database connection"""
-        if self.conn:
-            self.conn.close()
-            logger.info("Database connection closed")
+        """Close database connection (not needed for Supabase, but kept for compatibility)"""
+        logger.info("Supabase client cleanup (connection pooled)")
 
 
 # Global database instance

@@ -20,3 +20,7 @@ openpyxl>=3.1.0
 # Enhanced features
 python-dotenv>=1.0.0  # For .env file support
 tqdm>=4.65.0          # Better progress bars
+
+# Database - Supabase (Production PostgreSQL)
+supabase>=2.3.0       # Supabase Python client
+postgrest>=0.10.0     # PostgreSQL REST API client
