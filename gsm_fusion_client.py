@@ -10,6 +10,7 @@ Version: 1.0.0
 
 import os
 import logging
+import re
 import time
 from typing import Dict, List, Optional, Any, Union
 from dataclasses import dataclass
@@ -46,6 +47,13 @@ class IMEIOrder:
     status: str
     code: Optional[str] = None
     requested_at: Optional[str] = None
+    # Additional fields extracted from order details
+    carrier: Optional[str] = None
+    model: Optional[str] = None
+    simlock: Optional[str] = None
+    fmi: Optional[str] = None
+    result_code: Optional[str] = None
+    result_code_display: Optional[str] = None
 
 
 @dataclass
@@ -280,6 +288,111 @@ class GSMFusionClient:
                 result[child.tag] = child_data
 
         return result if result else (element.text.strip() if element.text else {})
+
+    def _parse_code_field(self, code_html: str) -> Dict[str, Optional[str]]:
+        """
+        Parse the HTML code field to extract structured data
+
+        The GSM Fusion API returns order details as HTML in the 'code' field.
+        This method extracts key information like carrier, model, simlock, FMI, etc.
+
+        Args:
+            code_html: HTML string from the 'code' field
+
+        Returns:
+            Dictionary with extracted fields (carrier, model, simlock, fmi, etc.)
+        """
+        result = {
+            'carrier': None,
+            'model': None,
+            'simlock': None,
+            'fmi': None,
+            'result_code': None,
+            'result_code_display': None
+        }
+
+        if not code_html or not isinstance(code_html, str):
+            return result
+
+        # Convert to lowercase for case-insensitive matching
+        code_lower = code_html.lower()
+
+        # Extract carrier (look for common patterns)
+        carrier_patterns = [
+            'carrier:', 'network:', 'sold by:', 'original carrier:',
+            'locked to:', 'carrier lock:', 'network lock:'
+        ]
+        for pattern in carrier_patterns:
+            if pattern in code_lower:
+                idx = code_lower.find(pattern)
+                # Extract text after the pattern until next <br> or newline
+                start = idx + len(pattern)
+                end = code_html.find('<br', start)
+                if end == -1:
+                    end = code_html.find('\n', start)
+                if end == -1:
+                    end = start + 100  # Max 100 chars
+                carrier_text = code_html[start:end].strip()
+                # Clean HTML tags
+                carrier_text = re.sub(r'<[^>]+>', '', carrier_text).strip()
+                result['carrier'] = carrier_text[:50] if carrier_text else None
+                break
+
+        # Extract model
+        model_patterns = ['model:', 'device:', 'iphone', 'device model:']
+        for pattern in model_patterns:
+            if pattern in code_lower:
+                idx = code_lower.find(pattern)
+                start = idx + len(pattern) if pattern.endswith(':') else idx
+                end = code_html.find('<br', start)
+                if end == -1:
+                    end = code_html.find('\n', start)
+                if end == -1:
+                    end = start + 100
+                model_text = code_html[start:end].strip()
+                model_text = re.sub(r'<[^>]+>', '', model_text).strip()
+                result['model'] = model_text[:100] if model_text else None
+                break
+
+        # Extract simlock
+        simlock_patterns = ['simlock:', 'lock status:', 'sim lock:', 'locked:']
+        for pattern in simlock_patterns:
+            if pattern in code_lower:
+                idx = code_lower.find(pattern)
+                start = idx + len(pattern)
+                end = code_html.find('<br', start)
+                if end == -1:
+                    end = code_html.find('\n', start)
+                if end == -1:
+                    end = start + 50
+                simlock_text = code_html[start:end].strip()
+                simlock_text = re.sub(r'<[^>]+>', '', simlock_text).strip()
+                result['simlock'] = simlock_text[:50] if simlock_text else None
+                break
+
+        # Extract FMI (Find My iPhone)
+        fmi_patterns = ['fmi:', 'find my iphone:', 'find my:', 'activation lock:']
+        for pattern in fmi_patterns:
+            if pattern in code_lower:
+                idx = code_lower.find(pattern)
+                start = idx + len(pattern)
+                end = code_html.find('<br', start)
+                if end == -1:
+                    end = code_html.find('\n', start)
+                if end == -1:
+                    end = start + 50
+                fmi_text = code_html[start:end].strip()
+                fmi_text = re.sub(r'<[^>]+>', '', fmi_text).strip()
+                result['fmi'] = fmi_text[:50] if fmi_text else None
+                break
+
+        # Store the full code as result_code_display (cleaned)
+        cleaned_code = re.sub(r'<[^>]+>', '\n', code_html)
+        cleaned_code = '\n'.join(line.strip() for line in cleaned_code.split('\n') if line.strip())
+        result['result_code_display'] = cleaned_code if cleaned_code else code_html
+        result['result_code'] = 'SUCCESS' if result['carrier'] or result['model'] else 'PENDING'
+
+        return result
 
     # API Methods
 
@@ -546,13 +659,24 @@ class GSMFusionClient:
         logger.info(f"Parsed {len(imeis_data)} order(s) from API response")
 
         for imei_data in imeis_data:
+            # Parse the code field to extract structured data
+            code_raw = imei_data.get('code')
+            parsed_fields = self._parse_code_field(code_raw) if code_raw else {}
+
             order = IMEIOrder(
                 id=imei_data.get('id', ''),
                 imei=imei_data.get('imei', ''),
                 package=imei_data.get('package', ''),
                 status=imei_data.get('status', ''),
-                code=imei_data.get('code'),
-                requested_at=imei_data.get('requestedat')
+                code=code_raw,
+                requested_at=imei_data.get('requestedat'),
+                # Add parsed fields from code HTML
+                carrier=parsed_fields.get('carrier'),
+                model=parsed_fields.get('model'),
+                simlock=parsed_fields.get('simlock'),
+                fmi=parsed_fields.get('fmi'),
+                result_code=parsed_fields.get('result_code'),
+                result_code_display=parsed_fields.get('result_code_display')
             )
             orders.append(order)
 

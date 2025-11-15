@@ -858,7 +858,7 @@ def history():
     db = get_db_safe()
     if not db:
         flash('Database not available', 'warning')
-        return render_template('history.html', orders=[], search_query='')
+        return render_template('history.html', orders=[], search_query='', search_count=0)
 
     try:
         if search_imei:
@@ -877,18 +877,23 @@ def history():
             else:
                 orders = []
                 flash('No valid IMEIs found', 'warning')
+
+            # Calculate search count for template
+            search_count = len(imeis)
         else:
             orders = db.get_recent_orders(limit=100)
+            search_count = 0
 
         return render_template('history.html',
                              orders=orders,
-                             search_query=search_imei)
+                             search_query=search_imei,
+                             search_count=search_count)
 
     except Exception as e:
         logger.error(f"History error: {e}")
         logger.error(traceback.format_exc())
         flash(f'Error loading history: {str(e)}', 'error')
-        return render_template('history.html', orders=[], search_query='')
+        return render_template('history.html', orders=[], search_query='', search_count=0)
 
 
 @app.route('/history/sync', methods=['GET'])
