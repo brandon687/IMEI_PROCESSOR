@@ -1145,6 +1145,123 @@ def export_all():
         return redirect(url_for('database_view'))
 
 
+@app.route('/download-csv', methods=['GET'])
+@error_handler
+def download_csv():
+    """Download all orders as CSV directly (no cloud upload)"""
+    logger.info("DOWNLOAD-CSV route called")
+
+    db = get_db_safe()
+    if not db:
+        flash('Database not available', 'error')
+        return redirect(url_for('database_view'))
+
+    try:
+        # Get limit from query parameter
+        limit = int(request.args.get('limit', 10000))
+
+        # Get orders
+        orders = db.get_recent_orders(limit=limit)
+
+        if not orders:
+            flash('No orders to export', 'warning')
+            return redirect(url_for('database_view'))
+
+        # Generate CSV in memory
+        output = io.StringIO()
+        fieldnames = [
+            'order_id', 'imei', 'imei2', 'service_name', 'service_id',
+            'status', 'carrier', 'model', 'simlock', 'fmi', 'credits',
+            'order_date', 'result_code', 'result_code_display', 'notes',
+            'created_at', 'updated_at'
+        ]
+
+        writer = csv.DictWriter(output, fieldnames=fieldnames)
+        writer.writeheader()
+
+        for order in orders:
+            row = {field: order.get(field, '') for field in fieldnames}
+            writer.writerow(row)
+
+        # Create response with CSV
+        csv_data = output.getvalue()
+
+        # Generate filename with timestamp
+        timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+        filename = f'orders_export_{timestamp}.csv'
+
+        logger.info(f"Generated CSV download: {len(orders)} orders, {len(csv_data)} bytes")
+
+        return Response(
+            csv_data,
+            mimetype='text/csv',
+            headers={'Content-Disposition': f'attachment; filename={filename}'}
+        )
+
+    except Exception as e:
+        logger.error(f"CSV download error: {e}")
+        logger.error(traceback.format_exc())
+        flash(f'Download failed: {str(e)}', 'error')
+        return redirect(url_for('database_view'))
+
+
+@app.route('/download-completed-csv', methods=['GET'])
+@error_handler
+def download_completed_csv():
+    """Download completed orders as CSV directly (no cloud upload)"""
+    logger.info("DOWNLOAD-COMPLETED-CSV route called")
+
+    db = get_db_safe()
+    if not db:
+        flash('Database not available', 'error')
+        return redirect(url_for('database_view'))
+
+    try:
+        # Get completed orders
+        orders = db.get_orders_by_status('Completed')
+
+        if not orders:
+            flash('No completed orders to export', 'warning')
+            return redirect(url_for('database_view'))
+
+        # Generate CSV in memory
+        output = io.StringIO()
+        fieldnames = [
+            'order_id', 'imei', 'imei2', 'service_name', 'service_id',
+            'status', 'carrier', 'model', 'simlock', 'fmi', 'credits',
+            'order_date', 'result_code', 'result_code_display', 'notes',
+            'created_at', 'updated_at'
+        ]
+
+        writer = csv.DictWriter(output, fieldnames=fieldnames)
+        writer.writeheader()
+
+        for order in orders:
+            row = {field: order.get(field, '') for field in fieldnames}
+            writer.writerow(row)
+
+        # Create response with CSV
+        csv_data = output.getvalue()
+
+        # Generate filename with timestamp
+        timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+        filename = f'completed_orders_{timestamp}.csv'
+
+        logger.info(f"Generated CSV download: {len(orders)} completed orders, {len(csv_data)} bytes")
+
+        return Response(
+            csv_data,
+            mimetype='text/csv',
+            headers={'Content-Disposition': f'attachment; filename={filename}'}
+        )
+
+    except Exception as e:
+        logger.error(f"CSV download error: {e}")
+        logger.error(traceback.format_exc())
+        flash(f'Download failed: {str(e)}', 'error')
+        return redirect(url_for('database_view'))
+
+
 @app.route('/list-exports', methods=['GET'])
 @error_handler
 def list_exports():
