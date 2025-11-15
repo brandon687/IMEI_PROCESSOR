@@ -224,9 +224,21 @@ class GSMFusionClient:
         """Recursively convert XML element to dictionary"""
         result: Dict[str, Any] = {}
 
-        # Add element text if present
-        if element.text and element.text.strip():
-            return element.text.strip()
+        # Add element attributes if present
+        if element.attrib:
+            result.update(element.attrib)
+
+        # Check if element has children
+        has_children = len(element) > 0
+
+        # If element has text but no children, store text in the result dict
+        if element.text and element.text.strip() and not has_children:
+            # If we already have attributes, add text as 'text' key
+            if result:
+                result['text'] = element.text.strip()
+            else:
+                # No attributes and no children, just return the text
+                return element.text.strip()
 
         # Process child elements
         for child in element:
@@ -240,7 +252,7 @@ class GSMFusionClient:
             else:
                 result[child.tag] = child_data
 
-        return result if result else element.text
+        return result if result else (element.text.strip() if element.text else {})
 
     # API Methods
 
@@ -270,6 +282,11 @@ class GSMFusionClient:
             packages = [packages]
 
         for pkg in packages:
+            # Skip non-dictionary packages (malformed data)
+            if not isinstance(pkg, dict):
+                logger.warning(f"Skipping non-dict package: {type(pkg)}")
+                continue
+
             service = ServiceInfo(
                 package_id=pkg.get('PackageId', ''),
                 category=pkg.get('Category', ''),
@@ -303,6 +320,11 @@ class GSMFusionClient:
             packages = [packages]
 
         for pkg in packages:
+            # Skip non-dictionary packages (malformed data)
+            if not isinstance(pkg, dict):
+                logger.warning(f"Skipping non-dict package: {type(pkg)}")
+                continue
+
             service = ServiceInfo(
                 package_id=pkg.get('PackageId', ''),
                 category=pkg.get('Category', ''),
