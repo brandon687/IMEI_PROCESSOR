@@ -1,5 +1,38 @@
 # HAMMER-API Project Memory
 
+---
+
+## 🚨 CRITICAL: WORKING VERSION BASELINE - READ THIS FIRST
+
+### Functional Project #1 - Production Baseline
+**Date Established**: November 15, 2025
+**Commit**: `3a7f0e9` (working-version-restore branch)
+**Status**: ✅ VERIFIED WORKING IN PRODUCTION
+
+### Emergency Rollback Command
+```bash
+git checkout 3a7f0e9
+git checkout -b emergency-restore
+git push -f origin emergency-restore:main
+```
+
+### What Makes This Version Work
+- **File Structure**: FLAT - all Python files at root (no src/ directory)
+- **Entry Point**: `web_app:app` (not `src.web_app:app`)
+- **Procfile**: `gunicorn web_app:app --bind 0.0.0.0:$PORT ...`
+- **No Package Structure**: Simple direct imports, no __init__.py needed
+- **Railway**: Deploys successfully with NIXPACKS builder
+
+### What Breaks This Version
+- Moving files to src/ directory without proper package setup
+- Changing Procfile to src.web_app:app without creating __init__.py
+- Any reorganization without testing Railway deployment first
+- Updating entry points in some configs but not others
+
+**📄 Full Documentation**: `WORKING_VERSION_BASELINE.md` (contains complete revert instructions)
+
+---
+
 ## Project Overview
 
 **HAMMER-API** is a professional Python-based IMEI verification and GSX data retrieval system that interfaces with the GSM Fusion API (hammerfusion.com). The system includes a Flask web interface, production-grade batch processing, and local database caching for order history.

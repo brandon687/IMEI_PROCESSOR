@@ -2,6 +2,26 @@
 
 Professional Python client for the GSM Fusion API (hammerfusion.com) that automates IMEI data processing and GSX detail retrieval.
 
+---
+
+## 🚨 CRITICAL: WORKING VERSION BASELINE
+
+**Current Status**: ✅ PRODUCTION WORKING
+**Baseline Commit**: `3a7f0e9`
+**Classification**: **Functional Project #1** - First fully working deployment
+
+### Emergency Rollback
+If the system breaks, immediately revert to this working baseline:
+```bash
+git checkout 3a7f0e9
+git checkout -b emergency-restore
+git push -f origin emergency-restore:main
+```
+
+**Complete documentation**: See `WORKING_VERSION_BASELINE.md`
+
+---
+
 ## Features
 
 - **Complete API Coverage** - All GSM Fusion API endpoints fully implemented
