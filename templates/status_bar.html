@@ -1,0 +1,133 @@
+<!-- Live Status Bar Component -->
+<div id="status-bar" style="position: fixed; top: 0; left: 0; right: 0; z-index: 9999; padding: 8px 15px; font-size: 13px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; box-shadow: 0 2px 4px rgba(0,0,0,0.1); transition: all 0.3s ease;">
+    <div style="max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center;">
+        <div style="display: flex; align-items: center; gap: 20px;">
+            <div style="display: flex; align-items: center; gap: 6px;">
+                <span id="status-indicator" style="display: inline-block; width: 10px; height: 10px; border-radius: 50%; animation: pulse 2s ease-in-out infinite;"></span>
+                <strong id="status-text">System Status</strong>
+            </div>
+            <div id="status-details" style="display: flex; gap: 15px; font-size: 12px; opacity: 0.9;">
+                <span id="api-status">API: <span id="api-value">...</span></span>
+                <span id="db-status">DB: <span id="db-value">...</span></span>
+                <span id="cache-status">Cache: <span id="cache-value">...</span></span>
+            </div>
+        </div>
+        <div style="display: flex; align-items: center; gap: 10px;">
+            <span id="last-check" style="font-size: 11px; opacity: 0.7;">Last checked: --:--</span>
+            <button id="refresh-status" onclick="checkStatus()" style="padding: 4px 10px; font-size: 11px; border: none; background: rgba(255,255,255,0.2); color: inherit; border-radius: 4px; cursor: pointer;">
+                Refresh
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Push content down to account for fixed status bar -->
+<div style="height: 42px;"></div>
+
+<style>
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+
+#status-bar.operational {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    color: white;
+}
+
+#status-bar.degraded {
+    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+    color: white;
+}
+
+#status-bar.outage {
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    color: white;
+}
+
+#status-bar.checking {
+    background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%);
+    color: white;
+}
+
+#refresh-status:hover {
+    background: rgba(255,255,255,0.3);
+}
+
+#status-details span {
+    padding: 2px 8px;
+    background: rgba(0,0,0,0.15);
+    border-radius: 12px;
+}
+</style>
+
+<script>
+let statusCheckInterval = null;
+
+async function checkStatus() {
+    try {
+        const response = await fetch('/api/status');
+        const data = await response.json();
+
+        // Update status bar appearance
+        const statusBar = document.getElementById('status-bar');
+        statusBar.className = data.overall;
+
+        // Update status text
+        const statusText = document.getElementById('status-text');
+        const statusMap = {
+            'operational': '✓ All Systems Operational',
+            'degraded': '⚠ Degraded Performance',
+            'outage': '✗ Service Outage',
+            'checking': '⟳ Checking Status...'
+        };
+        statusText.textContent = statusMap[data.overall] || 'Unknown';
+
+        // Update API status
+        const apiStatus = data.services.gsm_fusion;
+        const apiValue = document.getElementById('api-value');
+        if (apiStatus.response_time) {
+            apiValue.textContent = `${apiStatus.status} (${apiStatus.response_time}ms)`;
+        } else {
+            apiValue.textContent = apiStatus.status;
+        }
+        apiValue.title = apiStatus.message;
+
+        // Update DB status
+        const dbStatus = data.services.database;
+        const dbValue = document.getElementById('db-value');
+        dbValue.textContent = dbStatus.status;
+        dbValue.title = dbStatus.message;
+
+        // Update Cache status
+        const cacheStatus = data.services.cache;
+        const cacheValue = document.getElementById('cache-value');
+        cacheValue.textContent = cacheStatus.status;
+        cacheValue.title = cacheStatus.message;
+
+        // Update last check time
+        const now = new Date();
+        const timeStr = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+        document.getElementById('last-check').textContent = `Last checked: ${timeStr}`;
+
+    } catch (error) {
+        console.error('Status check failed:', error);
+        const statusBar = document.getElementById('status-bar');
+        statusBar.className = 'outage';
+        document.getElementById('status-text').textContent = '✗ Status Check Failed';
+    }
+}
+
+// Check status immediately on load
+checkStatus();
+
+// Check status every 30 seconds
+statusCheckInterval = setInterval(checkStatus, 30000);
+
+// Clean up interval when page unloads
+window.addEventListener('beforeunload', () => {
+    if (statusCheckInterval) {
+        clearInterval(statusCheckInterval);
+    }
+});
+</script>

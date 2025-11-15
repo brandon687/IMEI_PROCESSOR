@@ -102,7 +102,7 @@ def error_handler(f):
 
 @app.route('/health')
 def health_check():
-    """Health check endpoint for monitoring"""
+    """Health check endpoint for monitoring (simple)"""
     health_status = {
         'status': 'healthy',
         'timestamp': time.time(),
@@ -131,6 +131,96 @@ def health_check():
 
     status_code = 200 if health_status['status'] == 'healthy' else 503
     return jsonify(health_status), status_code
+
+
+@app.route('/api/status')
+def api_status():
+    """Real-time API status for status bar - lightweight and fast"""
+    status = {
+        'timestamp': time.time(),
+        'services': {
+            'gsm_fusion': {'status': 'unknown', 'message': '', 'response_time': None},
+            'database': {'status': 'unknown', 'message': ''},
+            'cache': {'status': 'unknown', 'message': ''}
+        },
+        'overall': 'checking'
+    }
+
+    # Check GSM Fusion API
+    try:
+        start = time.time()
+        client = GSMFusionClient(timeout=5)
+        # Quick test - just check if we can create client
+        client.close()
+        response_time = round((time.time() - start) * 1000, 2)  # ms
+
+        # Check if we have services cached
+        services = get_services_cached(max_age=300)
+        service_count = len(services)
+
+        if service_count > 0:
+            status['services']['gsm_fusion'] = {
+                'status': 'operational',
+                'message': f'{service_count} services available',
+                'response_time': response_time
+            }
+        else:
+            status['services']['gsm_fusion'] = {
+                'status': 'degraded',
+                'message': 'API responding but 0 services returned',
+                'response_time': response_time
+            }
+    except Exception as e:
+        status['services']['gsm_fusion'] = {
+            'status': 'outage',
+            'message': f'API Error: {str(e)[:100]}',
+            'response_time': None
+        }
+
+    # Check Database
+    try:
+        db = get_db_safe()
+        if db:
+            status['services']['database'] = {
+                'status': 'operational',
+                'message': 'Supabase connected'
+            }
+        else:
+            status['services']['database'] = {
+                'status': 'not_configured',
+                'message': 'Database not configured'
+            }
+    except Exception as e:
+        status['services']['database'] = {
+            'status': 'outage',
+            'message': f'DB Error: {str(e)[:100]}'
+        }
+
+    # Check Cache
+    if _services_cache:
+        cache_age = int(time.time() - _services_cache_time)
+        status['services']['cache'] = {
+            'status': 'operational',
+            'message': f'{len(_services_cache)} services (age: {cache_age}s)'
+        }
+    else:
+        status['services']['cache'] = {
+            'status': 'empty',
+            'message': 'No cached data'
+        }
+
+    # Determine overall status
+    statuses = [s['status'] for s in status['services'].values()]
+    if 'outage' in statuses:
+        status['overall'] = 'outage'
+    elif 'degraded' in statuses:
+        status['overall'] = 'degraded'
+    elif all(s in ['operational', 'not_configured'] for s in statuses):
+        status['overall'] = 'operational'
+    else:
+        status['overall'] = 'unknown'
+
+    return jsonify(status)
 
 
 @app.route('/')
