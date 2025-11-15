@@ -9,6 +9,8 @@ from dotenv import load_dotenv
 from gsm_fusion_client import GSMFusionClient, GSMFusionAPIError
 from database import get_database
 from production_submission_system import ProductionSubmissionSystem, SubmissionResult
+from supabase_storage import get_storage
+from export_completed_orders import export_completed_orders_to_csv, export_all_orders_to_csv, list_exported_csvs
 import os
 import logging
 import traceback
@@ -718,15 +720,41 @@ def batch_upload():
             return redirect(url_for('batch_upload'))
 
         try:
+            # Read file data for both parsing and storage
+            file_data = file.stream.read()
+
+            # Upload file to Supabase Storage
+            storage = get_storage()
+            file_url = None
+            if storage.available:
+                try:
+                    # Detect content type
+                    if file.filename.endswith('.csv'):
+                        content_type = 'text/csv'
+                    elif file.filename.endswith(('.xlsx', '.xls')):
+                        content_type = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+                    else:
+                        content_type = 'application/octet-stream'
+
+                    file_url = storage.upload_file(file.filename, file_data, content_type)
+                    if file_url:
+                        logger.info(f"✅ Uploaded file to Supabase Storage: {file_url}")
+                    else:
+                        logger.warning("File upload to Supabase Storage failed, continuing with processing")
+                except Exception as e:
+                    logger.warning(f"Supabase Storage upload failed: {e}, continuing with processing")
+            else:
+                logger.info("Supabase Storage not available, file not uploaded to cloud")
+
             # Parse file based on extension
             if file.filename.endswith('.csv'):
                 # Read CSV
-                stream = io.StringIO(file.stream.read().decode("UTF8"), newline=None)
+                stream = io.StringIO(file_data.decode("UTF8"), newline=None)
                 csv_reader = csv.DictReader(stream)
                 imeis = [row.get('imei', '').strip() for row in csv_reader if row.get('imei')]
             elif file.filename.endswith(('.xlsx', '.xls')):
                 # Read Excel
-                wb = openpyxl.load_workbook(file)
+                wb = openpyxl.load_workbook(io.BytesIO(file_data))
                 ws = wb.active
                 headers = [cell.value for cell in ws[1]]
                 imei_col = headers.index('imei') if 'imei' in headers else 0
@@ -768,6 +796,15 @@ def batch_upload():
             successful = len(result['orders'])
             duplicates = len(result['duplicates'])
             errors = len(result['errors'])
+
+            # Record import history with file URL
+            if db:
+                db.record_batch_import(
+                    filename=file.filename,
+                    rows_imported=successful,
+                    rows_skipped=duplicates + errors,
+                    file_url=file_url
+                )
 
             flash(f'Batch processed: {successful} successful, {duplicates} duplicates, {errors} errors', 'success')
             return redirect(url_for('history'))
@@ -829,6 +866,87 @@ def history():
         logger.error(traceback.format_exc())
         flash(f'Error loading history: {str(e)}', 'error')
         return render_template('history.html', orders=[], search_query='')
+
+
+@app.route('/history/sync', methods=['GET'])
+@error_handler
+def sync_orders():
+    """Sync pending orders with API to update their status"""
+    logger.info("SYNC route called")
+
+    db = get_db_safe()
+    if not db:
+        flash('Database not available', 'error')
+        return redirect(url_for('history'))
+
+    try:
+        # Get all pending orders
+        conn = db.conn
+        cursor = conn.cursor()
+        cursor.execute("SELECT order_id FROM orders WHERE status IN ('Pending', 'In Process', '1', '4')")
+        pending_orders = cursor.fetchall()
+
+        if not pending_orders:
+            flash('No pending orders to sync', 'info')
+            return redirect(url_for('history'))
+
+        # Collect order IDs
+        order_ids = [row[0] for row in pending_orders]
+        logger.info(f"Syncing {len(order_ids)} pending orders")
+
+        # Fetch status from API (batch)
+        client = GSMFusionClient(timeout=30)
+        updated_count = 0
+
+        try:
+            # API accepts comma-separated order IDs for batch lookup
+            order_ids_str = ','.join(order_ids)
+            orders = client.get_imei_orders(order_ids_str)
+
+            # Update database with new status
+            for order in orders:
+                try:
+                    cursor.execute("""
+                        UPDATE orders
+                        SET status = ?,
+                            carrier = ?,
+                            model = ?,
+                            simlock = ?,
+                            fmi = ?,
+                            result_code = ?,
+                            result_code_display = ?,
+                            updated_at = CURRENT_TIMESTAMP
+                        WHERE order_id = ?
+                    """, (
+                        order.status,
+                        order.carrier or '',
+                        order.model or '',
+                        order.simlock or '',
+                        order.fmi or '',
+                        order.result_code or '',
+                        order.result_code_display or '',
+                        order.id
+                    ))
+                    updated_count += 1
+                except Exception as e:
+                    logger.warning(f"Failed to update order {order.id}: {e}")
+
+            conn.commit()
+            flash(f'✅ Synced {updated_count} orders successfully', 'success')
+
+        except Exception as e:
+            logger.error(f"API sync failed: {e}")
+            flash(f'Sync failed: {str(e)}', 'error')
+        finally:
+            client.close()
+
+        return redirect(url_for('history'))
+
+    except Exception as e:
+        logger.error(f"Sync error: {e}")
+        logger.error(traceback.format_exc())
+        flash(f'Sync failed: {str(e)}', 'error')
+        return redirect(url_for('history'))
 
 
 @app.route('/status/<order_id>')
@@ -942,6 +1060,103 @@ def database_view():
         logger.error(traceback.format_exc())
         flash(f'Database error: {str(e)}', 'error')
         return redirect(url_for('index'))
+
+
+# ==========================================
+# CSV EXPORT ROUTES
+# ==========================================
+
+@app.route('/export-completed', methods=['GET'])
+@error_handler
+def export_completed():
+    """Export completed orders to CSV and upload to Supabase Storage"""
+    logger.info("EXPORT-COMPLETED route called")
+
+    try:
+        # Export completed orders
+        csv_url = export_completed_orders_to_csv(status_filter='Completed')
+
+        if csv_url:
+            flash(f'✅ Exported completed orders to CSV: {csv_url}', 'success')
+        else:
+            flash('Failed to export completed orders. Check logs for details.', 'error')
+
+        return redirect(url_for('database_view'))
+
+    except Exception as e:
+        logger.error(f"Export error: {e}")
+        logger.error(traceback.format_exc())
+        flash(f'Export failed: {str(e)}', 'error')
+        return redirect(url_for('database_view'))
+
+
+@app.route('/export-all', methods=['GET'])
+@error_handler
+def export_all():
+    """Export all recent orders to CSV and upload to Supabase Storage"""
+    logger.info("EXPORT-ALL route called")
+
+    try:
+        # Get limit from query parameter (default 10000)
+        limit = int(request.args.get('limit', 10000))
+
+        # Export all orders
+        csv_url = export_all_orders_to_csv(limit=limit)
+
+        if csv_url:
+            flash(f'✅ Exported all orders to CSV: {csv_url}', 'success')
+        else:
+            flash('Failed to export orders. Check logs for details.', 'error')
+
+        return redirect(url_for('database_view'))
+
+    except Exception as e:
+        logger.error(f"Export error: {e}")
+        logger.error(traceback.format_exc())
+        flash(f'Export failed: {str(e)}', 'error')
+        return redirect(url_for('database_view'))
+
+
+@app.route('/list-exports', methods=['GET'])
+@error_handler
+def list_exports():
+    """List all exported CSV files from Supabase Storage"""
+    logger.info("LIST-EXPORTS route called")
+
+    try:
+        # List exported files
+        files = list_exported_csvs(limit=50)
+
+        if files:
+            # Format file list for display
+            file_list = []
+            for file in files:
+                file_info = {
+                    'name': file.get('name', 'Unknown'),
+                    'size': file.get('size', 0),
+                    'created_at': file.get('created_at', ''),
+                    'url': file.get('url', '')
+                }
+                file_list.append(file_info)
+
+            return jsonify({
+                'success': True,
+                'count': len(file_list),
+                'files': file_list
+            })
+        else:
+            return jsonify({
+                'success': False,
+                'message': 'No exported files found'
+            })
+
+    except Exception as e:
+        logger.error(f"List exports error: {e}")
+        logger.error(traceback.format_exc())
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
 
 
 @app.errorhandler(404)

@@ -1,0 +1,1677 @@
+[
+  {
+    "test_number": 1,
+    "test_name": "Original format from docs",
+    "method": "POST",
+    "url": "https://hammerfusion.com/gsmfusion_api/index.php",
+    "params": {
+      "username": "scalmobile",
+      "api_key": "C0H6-T2S9-H9A0-G0T9-X3N7",
+      "action": "getServerList"
+    },
+    "headers": {},
+    "status_code": 200,
+    "response_text": "<?phpxml version=\"1.0\" encoding=\"utf-8\"?><error>Invalid User!</error>",
+    "response_headers": {
+      "Date": "Wed, 12 Nov 2025 17:02:47 GMT",
+      "Content-Type": "application/xml",
+      "Transfer-Encoding": "chunked",
+      "Connection": "keep-alive",
+      "Server": "cloudflare",
+      "Nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+      "Report-To": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=tstv5FoVagI8giHKhcw4viKSer38UeKftMNS8ivWW%2FBd4ixEVZkv4svrE2QqC%2FlB8DNgmFpUkJU5OFdMj8B3qLTgvXDJ89WAEH7SR3%2Flrw%3D%3D\"}]}",
+      "cf-cache-status": "DYNAMIC",
+      "Content-Encoding": "gzip",
+      "CF-RAY": "99d79959a86c22b3-LAX"
+    },
+    "cookies": {},
+    "elapsed": 0.284242
+  },
+  {
+    "test_number": 2,
+    "test_name": "Lowercase API key",
+    "method": "POST",
+    "url": "https://hammerfusion.com/gsmfusion_api/index.php",
+    "params": {
+      "username": "scalmobile",
+      "api_key": "c0h6-t2s9-h9a0-g0t9-x3n7",
+      "action": "getServerList"
+    },
+    "headers": {},
+    "status_code": 200,
+    "response_text": "<?phpxml version=\"1.0\" encoding=\"utf-8\"?><error>Invalid User!</error>",
+    "response_headers": {
+      "Date": "Wed, 12 Nov 2025 17:02:47 GMT",
+      "Content-Type": "application/xml",
+      "Transfer-Encoding": "chunked",
+      "Connection": "keep-alive",
+      "Server": "cloudflare",
+      "Nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+      "Report-To": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=fO6xdEOfcJzeaVilIEoBCbHM7q6nZ5sjFAdZdwXuYvLZ0n7AjMiDIQdwpB1GYlLyTi3Leue1D60XVbzSaezpoD%2FduFYnuCVEQqjVAU8XJg%3D%3D\"}]}",
+      "cf-cache-status": "DYNAMIC",
+      "Content-Encoding": "gzip",
+      "CF-RAY": "99d7995b886b566d-LAX"
+    },
+    "cookies": {},
+    "elapsed": 0.287059
+  },
+  {
+    "test_number": 3,
+    "test_name": "Uppercase API key",
+    "method": "POST",
+    "url": "https://hammerfusion.com/gsmfusion_api/index.php",
+    "params": {
+      "username": "scalmobile",
+      "api_key": "C0H6-T2S9-H9A0-G0T9-X3N7",
+      "action": "getServerList"
+    },
+    "headers": {},
+    "status_code": 200,
+    "response_text": "<?phpxml version=\"1.0\" encoding=\"utf-8\"?><error>Invalid User!</error>",
+    "response_headers": {
+      "Date": "Wed, 12 Nov 2025 17:02:48 GMT",
+      "Content-Type": "application/xml",
+      "Transfer-Encoding": "chunked",
+      "Connection": "keep-alive",
+      "Server": "cloudflare",
+      "Nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+      "Report-To": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=TPZipZWtIEJQo%2F2h%2FlNJaaJiQGxf4t3xrl50mMa1JLf5015pULt1henut%2FFfF%2FFtc3c0X6Cwm1dlgs3z1ZxJZBzWM0SXQRKqS%2FSLyWKg5w%3D%3D\"}]}",
+      "cf-cache-status": "DYNAMIC",
+      "Content-Encoding": "gzip",
+      "CF-RAY": "99d7995d6e884fb1-LAX"
+    },
+    "cookies": {},
+    "elapsed": 0.329868
+  },
+  {
+    "test_number": 4,
+    "test_name": "API key without dashes",
+    "method": "POST",
+    "url": "https://hammerfusion.com/gsmfusion_api/index.php",
+    "params": {
+      "username": "scalmobile",
+      "api_key": "C0H6T2S9H9A0G0T9X3N7",
+      "action": "getServerList"
+    },
+    "headers": {},
+    "status_code": 200,
+    "response_text": "<?phpxml version=\"1.0\" encoding=\"utf-8\"?><error>Invalid User!</error>",
+    "response_headers": {
+      "Date": "Wed, 12 Nov 2025 17:02:48 GMT",
+      "Content-Type": "application/xml",
+      "Transfer-Encoding": "chunked",
+      "Connection": "keep-alive",
+      "Server": "cloudflare",
+      "Nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+      "Report-To": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=APdGPPuMlEvl%2FA6%2Fz7cqRoIrZZL%2BGOTGlWltd09UJxbFnikPPqOoNUexOnicQlCpACPC3ctmYBHABRhB%2BwmDWq%2FptU%2Flrxhsbx01u26%2FKQ%3D%3D\"}]}",
+      "cf-cache-status": "DYNAMIC",
+      "Content-Encoding": "gzip",
+      "CF-RAY": "99d7995f891869c4-LAX"
+    },
+    "cookies": {},
+    "elapsed": 0.301276
+  },
+  {
+    "test_number": 5,
+    "test_name": "GET method with query params",
+    "method": "GET",
+    "url": "https://hammerfusion.com/gsmfusion_api/index.php",
+    "params": {
+      "username": "scalmobile",
+      "api_key": "C0H6-T2S9-H9A0-G0T9-X3N7",
+      "action": "getServerList"
+    },
+    "headers": {},
+    "status_code": 200,
+    "response_text": "<?phpxml version=\"1.0\" encoding=\"utf-8\"?><error>Invalid User!</error>",
+    "response_headers": {
+      "Date": "Wed, 12 Nov 2025 17:02:48 GMT",
+      "Content-Type": "application/xml",
+      "Transfer-Encoding": "chunked",
+      "Connection": "keep-alive",
+      "Server": "cloudflare",
+      "Nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+      "Report-To": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=fNEUrYyxk3p3peW%2BoWpk3yqwmtWjW8Ty%2B4j5QSzsQTG9GmKFaI%2FuE5kKpwHCM1RFyt4SKWgu2fJijMWSkI6UXvm%2BcVJa35R2qXP2P9Rp8A%3D%3D\"}]}",
+      "cf-cache-status": "DYNAMIC",
+      "Content-Encoding": "gzip",
+      "CF-RAY": "99d799616fa775a3-LAX"
+    },
+    "cookies": {},
+    "elapsed": 0.282972
+  },
+  {
+    "test_number": 6,
+    "test_name": "Alternative param: apikey (no underscore)",
+    "method": "POST",
+    "url": "https://hammerfusion.com/gsmfusion_api/index.php",
+    "params": {
+      "username": "scalmobile",
+      "apikey": "C0H6-T2S9-H9A0-G0T9-X3N7",
+      "action": "getServerList"
+    },
+    "headers": {},
+    "status_code": 200,
+    "response_text": "<?phpxml version=\"1.0\" encoding=\"utf-8\"?><error>Invalid User!</error>",
+    "response_headers": {
+      "Date": "Wed, 12 Nov 2025 17:02:49 GMT",
+      "Content-Type": "application/xml",
+      "Transfer-Encoding": "chunked",
+      "Connection": "keep-alive",
+      "Server": "cloudflare",
+      "Nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+      "Report-To": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=SxgDdTT44wWPRzNgdX4HGCWcjdUgmto24BE%2B9B8KfnVvB1KJk3aVJylmEnt%2F5pnEzS%2BoMwJyJ4qfm7WOPrNsbM%2FcGggfP1LGtK%2BSmqRhrQ%3D%3D\"}]}",
+      "cf-cache-status": "DYNAMIC",
+      "Content-Encoding": "gzip",
+      "CF-RAY": "99d799634ca8cb85-LAX"
+    },
+    "cookies": {},
+    "elapsed": 0.292211
+  },
+  {
+    "test_number": 7,
+    "test_name": "Alternative param: key",
+    "method": "POST",
+    "url": "https://hammerfusion.com/gsmfusion_api/index.php",
+    "params": {
+      "username": "scalmobile",
+      "key": "C0H6-T2S9-H9A0-G0T9-X3N7",
+      "action": "getServerList"
+    },
+    "headers": {},
+    "status_code": 200,
+    "response_text": "<?phpxml version=\"1.0\" encoding=\"utf-8\"?><error>Invalid User!</error>",
+    "response_headers": {
+      "Date": "Wed, 12 Nov 2025 17:02:49 GMT",
+      "Content-Type": "application/xml",
+      "Transfer-Encoding": "chunked",
+      "Connection": "keep-alive",
+      "Server": "cloudflare",
+      "Report-To": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=LcgOofK8vXhJXsD5yseohqfLZgiWwlomWBlRlc0HiYoWTctN9lD452ML5STTZ8fqs4kJpwYjdaJ%2ByMY0Nij30tI7RXRVjpTYyo3aOXb4hQ%3D%3D\"}]}",
+      "Nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+      "cf-cache-status": "DYNAMIC",
+      "Content-Encoding": "gzip",
+      "CF-RAY": "99d799652e5f5e03-LAX"
+    },
+    "cookies": {},
+    "elapsed": 0.555847
+  },
+  {
+    "test_number": 8,
+    "test_name": "Alternative param: token",
+    "method": "POST",
+    "url": "https://hammerfusion.com/gsmfusion_api/index.php",
+    "params": {
+      "username": "scalmobile",
+      "token": "C0H6-T2S9-H9A0-G0T9-X3N7",
+      "action": "getServerList"
+    },
+    "headers": {},
+    "status_code": 200,
+    "response_text": "<?phpxml version=\"1.0\" encoding=\"utf-8\"?><error>Invalid User!</error>",
+    "response_headers": {
+      "Date": "Wed, 12 Nov 2025 17:02:49 GMT",
+      "Content-Type": "application/xml",
+      "Transfer-Encoding": "chunked",
+      "Connection": "keep-alive",
+      "Server": "cloudflare",
+      "Nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+      "Report-To": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=TPVC%2FrsAYKl1mAr1zkvCqaD4hLDVhcX0r34ngEWQ2vau6WpGBQ%2BcFsLSPDwDjXogma%2B6qLL2sWHc%2FRhvmkZx5rqtYDo%2FOOiFXGLA5KekBg%3D%3D\"}]}",
+      "cf-cache-status": "DYNAMIC",
+      "Content-Encoding": "gzip",
+      "CF-RAY": "99d79968a9db0ff8-LAX"
+    },
+    "cookies": {},
+    "elapsed": 0.310334
+  },
+  {
+    "test_number": 9,
+    "test_name": "URL encoded API key",
+    "method": "POST",
+    "url": "https://hammerfusion.com/gsmfusion_api/index.php",
+    "params": {
+      "username": "scalmobile",
+      "api_key": "C0H6-T2S9-H9A0-G0T9-X3N7",
+      "action": "getServerList"
+    },
+    "headers": {},
+    "status_code": 200,
+    "response_text": "<?phpxml version=\"1.0\" encoding=\"utf-8\"?><error>Invalid User!</error>",
+    "response_headers": {
+      "Date": "Wed, 12 Nov 2025 17:02:50 GMT",
+      "Content-Type": "application/xml",
+      "Transfer-Encoding": "chunked",
+      "Connection": "keep-alive",
+      "Server": "cloudflare",
+      "Nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+      "Report-To": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=kWt6923jK1G4jThuBE4ts%2BMge%2FUANon0mYppQSnCUXV%2BJudfpNyMODVSX7Nz5HRqZWWM0bCbFdM7bN5knKkCGhaxNjnwFjN%2BR%2Ba7NK5YmQ%3D%3D\"}]}",
+      "cf-cache-status": "DYNAMIC",
+      "Content-Encoding": "gzip",
+      "CF-RAY": "99d7996aaa2d69ce-LAX"
+    },
+    "cookies": {},
+    "elapsed": 0.284953
+  },
+  {
+    "test_number": 10,
+    "test_name": "Different action: checkStatus",
+    "method": "POST",
+    "url": "https://hammerfusion.com/gsmfusion_api/index.php",
+    "params": {
+      "username": "scalmobile",
+      "api_key": "C0H6-T2S9-H9A0-G0T9-X3N7",
+      "action": "checkStatus"
+    },
+    "headers": {},
+    "status_code": 200,
+    "response_text": "<?phpxml version=\"1.0\" encoding=\"utf-8\"?><error>Invalid User!</error>",
+    "response_headers": {
+      "Date": "Wed, 12 Nov 2025 17:02:50 GMT",
+      "Content-Type": "application/xml",
+      "Transfer-Encoding": "chunked",
+      "Connection": "keep-alive",
+      "Server": "cloudflare",
+      "Report-To": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=ohuY%2B%2FZb48u9MpiHJxfsTH2A%2FsaPosMGB%2BytqLmlFRJ%2FFhfmLwnbkMDlOx1rJ8ifU3FfUdYuRPJGfSqgRHkxvvFjHsc7TvOAXI4mjdNtLg%3D%3D\"}]}",
+      "Nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+      "cf-cache-status": "DYNAMIC",
+      "Content-Encoding": "gzip",
+      "CF-RAY": "99d7996c8d2c4b1f-LAX"
+    },
+    "cookies": {},
+    "elapsed": 0.567749
+  },
+  {
+    "test_number": 11,
+    "test_name": "Base64 encoded API key",
+    "method": "POST",
+    "url": "https://hammerfusion.com/gsmfusion_api/index.php",
+    "params": {
+      "username": "scalmobile",
+      "api_key": "QzBINi1UMlM5LUg5QTAtRzBUOS1YM043",
+      "action": "getServerList"
+    },
+    "headers": {},
+    "status_code": 200,
+    "response_text": "<?phpxml version=\"1.0\" encoding=\"utf-8\"?><error>Invalid User!</error>",
+    "response_headers": {
+      "Date": "Wed, 12 Nov 2025 17:02:51 GMT",
+      "Content-Type": "application/xml",
+      "Transfer-Encoding": "chunked",
+      "Connection": "keep-alive",
+      "Server": "cloudflare",
+      "Nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+      "Report-To": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=Lg%2BjH0s93gi9mI7iWKqlDR0kXbbTRozs%2BTD8lytxNSVApjJ7R4oha%2BTl9fDf2rtsbX2c1YZzPYfBkvT3IHJb%2F1FVfZxHVbty7h66ngL3UQ%3D%3D\"}]}",
+      "cf-cache-status": "DYNAMIC",
+      "Content-Encoding": "gzip",
+      "CF-RAY": "99d799708c5bdbcc-LAX"
+    },
+    "cookies": {},
+    "elapsed": 0.371954
+  },
+  {
+    "test_number": 12,
+    "test_name": "MD5 hashed API key",
+    "method": "POST",
+    "url": "https://hammerfusion.com/gsmfusion_api/index.php",
+    "params": {
+      "username": "scalmobile",
+      "api_key": "f3efafbdb7857296e12b92b0c3088577",
+      "action": "getServerList"
+    },
+    "headers": {},
+    "status_code": 200,
+    "response_text": "<?phpxml version=\"1.0\" encoding=\"utf-8\"?><error>Invalid User!</error>",
+    "response_headers": {
+      "Date": "Wed, 12 Nov 2025 17:02:51 GMT",
+      "Content-Type": "application/xml",
+      "Transfer-Encoding": "chunked",
+      "Connection": "keep-alive",
+      "Server": "cloudflare",
+      "Nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+      "Report-To": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=m6xqNNfGF7oB8DfuHzXJWnabYIji6%2BuobxtsyZcBp6dC7ZNsUh5ViG0YUmv3eMZ2Ugrsr2OfH0m7fsrhltrk3y6zqJA%2FuXlf%2B9cHMTTtXA%3D%3D\"}]}",
+      "cf-cache-status": "DYNAMIC",
+      "Content-Encoding": "gzip",
+      "CF-RAY": "99d799727a73092d-LAX"
+    },
+    "cookies": {},
+    "elapsed": 0.323715
+  },
+  {
+    "test_number": 13,
+    "test_name": "SHA256 hashed API key",
+    "method": "POST",
+    "url": "https://hammerfusion.com/gsmfusion_api/index.php",
+    "params": {
+      "username": "scalmobile",
+      "api_key": "9edd67366dbf256869979ad0a6236c95b0ab950dc2171772e9559749c12455d2",
+      "action": "getServerList"
+    },
+    "headers": {},
+    "status_code": 200,
+    "response_text": "<?phpxml version=\"1.0\" encoding=\"utf-8\"?><error>Invalid User!</error>",
+    "response_headers": {
+      "Date": "Wed, 12 Nov 2025 17:02:51 GMT",
+      "Content-Type": "application/xml",
+      "Transfer-Encoding": "chunked",
+      "Connection": "keep-alive",
+      "Server": "cloudflare",
+      "Nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+      "Report-To": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=q9uLhQ9%2F9n7K9kpqcHyCYFnzwpm%2B0Pz7ifXONFpFPajifC3StvAcoP02%2ByDWWn8EYE03bI2YhqFLs1iwv5AWoZgj9cnMmTUiOP7uBTPcsw%3D%3D\"}]}",
+      "cf-cache-status": "DYNAMIC",
+      "Content-Encoding": "gzip",
+      "CF-RAY": "99d799748b93b81f-LAX"
+    },
+    "cookies": {},
+    "elapsed": 0.296042
+  },
+  {
+    "test_number": 14,
+    "test_name": "Combined username:apikey",
+    "method": "POST",
+    "url": "https://hammerfusion.com/gsmfusion_api/index.php",
+    "params": {
+      "credentials": "scalmobile:C0H6-T2S9-H9A0-G0T9-X3N7",
+      "action": "getServerList"
+    },
+    "headers": {},
+    "status_code": 200,
+    "response_text": "<?phpxml version=\"1.0\" encoding=\"utf-8\"?><error>Invalid User!</error>",
+    "response_headers": {
+      "Date": "Wed, 12 Nov 2025 17:02:52 GMT",
+      "Content-Type": "application/xml",
+      "Transfer-Encoding": "chunked",
+      "Connection": "keep-alive",
+      "Server": "cloudflare",
+      "Nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+      "Report-To": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=gSVdtEGQjWvm7H7jvlQ%2FQsR5QPdJI9z6OSmc3hehaHkAUiPXAIxxSwirtGDRKj05gfqc5AM7Ltv36d4CM4nY19Y4SRp%2BTIVT1XnQdgW4wA%3D%3D\"}]}",
+      "cf-cache-status": "DYNAMIC",
+      "Content-Encoding": "gzip",
+      "CF-RAY": "99d799765f727b5d-LAX"
+    },
+    "cookies": {},
+    "elapsed": 0.288473
+  },
+  {
+    "test_number": 15,
+    "test_name": "Base64 of username:apikey",
+    "method": "POST",
+    "url": "https://hammerfusion.com/gsmfusion_api/index.php",
+    "params": {
+      "credentials": "c2NhbG1vYmlsZTpDMEg2LVQyUzktSDlBMC1HMFQ5LVgzTjc=",
+      "action": "getServerList"
+    },
+    "headers": {},
+    "status_code": 200,
+    "response_text": "<?phpxml version=\"1.0\" encoding=\"utf-8\"?><error>Invalid User!</error>",
+    "response_headers": {
+      "Date": "Wed, 12 Nov 2025 17:02:52 GMT",
+      "Content-Type": "application/xml",
+      "Transfer-Encoding": "chunked",
+      "Connection": "keep-alive",
+      "Server": "cloudflare",
+      "Nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+      "Report-To": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=4%2BST6h69%2FrmedixuGIEi1YRgTR6wTqkgy3qIn401IutO1SD7l9lgu8B5C4jppcsG5DoB3I6DOFuTpKoTwK9NLOQcoJUA97fRTOzTfHY%2FZQ%3D%3D\"}]}",
+      "cf-cache-status": "DYNAMIC",
+      "Content-Encoding": "gzip",
+      "CF-RAY": "99d799785b54ad59-LAX"
+    },
+    "cookies": {},
+    "elapsed": 0.305949
+  },
+  {
+    "test_number": 16,
+    "test_name": "HMAC signature",
+    "method": "POST",
+    "url": "https://hammerfusion.com/gsmfusion_api/index.php",
+    "params": {
+      "username": "scalmobile",
+      "signature": "331fe88f9954255e488fe4efc141c9225ffd536fb390081056c14aeb06634184",
+      "action": "getServerList"
+    },
+    "headers": {},
+    "status_code": 200,
+    "response_text": "<?phpxml version=\"1.0\" encoding=\"utf-8\"?><error>Invalid User!</error>",
+    "response_headers": {
+      "Date": "Wed, 12 Nov 2025 17:02:52 GMT",
+      "Content-Type": "application/xml",
+      "Transfer-Encoding": "chunked",
+      "Connection": "keep-alive",
+      "Server": "cloudflare",
+      "Nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+      "Report-To": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=a%2FL885FQELu7B3AeXTsJdTrOEY9LIy7dafCuq9NqVI29nMOqT%2BI39b9%2FD5qd4hdLrSPpor1mNOIUDHl2pZxSbt4%2FOu3xx7ZH2OS6fOLgsw%3D%3D\"}]}",
+      "cf-cache-status": "DYNAMIC",
+      "Content-Encoding": "gzip",
+      "CF-RAY": "99d7997a593b2ac1-LAX"
+    },
+    "cookies": {},
+    "elapsed": 0.293389
+  },
+  {
+    "test_number": 17,
+    "test_name": "With timestamp parameter",
+    "method": "POST",
+    "url": "https://hammerfusion.com/gsmfusion_api/index.php",
+    "params": {
+      "username": "scalmobile",
+      "api_key": "C0H6-T2S9-H9A0-G0T9-X3N7",
+      "timestamp": "1762966972",
+      "action": "getServerList"
+    },
+    "headers": {},
+    "status_code": 200,
+    "response_text": "<?phpxml version=\"1.0\" encoding=\"utf-8\"?><error>Invalid User!</error>",
+    "response_headers": {
+      "Date": "Wed, 12 Nov 2025 17:02:53 GMT",
+      "Content-Type": "application/xml",
+      "Transfer-Encoding": "chunked",
+      "Connection": "keep-alive",
+      "Server": "cloudflare",
+      "Nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+      "Report-To": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=sROfWnLEoJveq5iGu4Ki0TEbHXFkL9Im%2BUH5EQ2E%2FfC5oyxdodJB9yP6obzrsafDlkS6uXugj%2F%2F9faEImBMam%2FIj2JNvI8C9rQ86Gogrug%3D%3D\"}]}",
+      "cf-cache-status": "DYNAMIC",
+      "Content-Encoding": "gzip",
+      "CF-RAY": "99d7997c397bb786-LAX"
+    },
+    "cookies": {},
+    "elapsed": 0.319498
+  },
+  {
+    "test_number": 18,
+    "test_name": "JSON payload",
+    "method": "POST",
+    "url": "https://hammerfusion.com/gsmfusion_api/index.php",
+    "params": {
+      "username": "scalmobile",
+      "api_key": "C0H6-T2S9-H9A0-G0T9-X3N7",
+      "action": "getServerList"
+    },
+    "headers": {},
+    "status_code": 200,
+    "response_text": "<?phpxml version=\"1.0\" encoding=\"utf-8\"?><error>Invalid User!</error>",
+    "response_headers": {
+      "Date": "Wed, 12 Nov 2025 17:02:53 GMT",
+      "Content-Type": "application/xml",
+      "Transfer-Encoding": "chunked",
+      "Connection": "keep-alive",
+      "Server": "cloudflare",
+      "Nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+      "Report-To": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=KD2cY7R%2B5WfNm6XOtcggKatoJXKouaCUh3kwyZl2faaeNZC7nutUpdOAwmH9BcYtrG4EetZ6zbF2YXxS39ug6rOhMsyBrxf%2FUj%2BDOCqe%2Fw%3D%3D\"}]}",
+      "cf-cache-status": "DYNAMIC",
+      "Content-Encoding": "gzip",
+      "CF-RAY": "99d7997e3f1adcc7-LAX"
+    },
+    "cookies": {},
+    "elapsed": 0.296396
+  },
+  {
+    "test_number": 19,
+    "test_name": "Hex encoded API key",
+    "method": "POST",
+    "url": "https://hammerfusion.com/gsmfusion_api/index.php",
+    "params": {
+      "username": "scalmobile",
+      "api_key": "433048362d543253392d483941302d473054392d58334e37",
+      "action": "getServerList"
+    },
+    "headers": {},
+    "status_code": 200,
+    "response_text": "<?phpxml version=\"1.0\" encoding=\"utf-8\"?><error>Invalid User!</error>",
+    "response_headers": {
+      "Date": "Wed, 12 Nov 2025 17:02:53 GMT",
+      "Content-Type": "application/xml",
+      "Transfer-Encoding": "chunked",
+      "Connection": "keep-alive",
+      "Server": "cloudflare",
+      "Nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+      "Report-To": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=9XsWZlzMyRPnngJn3wymybZNsVqPMyn5dvaElnzVdNA1Nz1VhFt4EhIMJfRxuDfwpHWwAKvf2iOw5Vsa0DjBwL955PfKaJFoJ83HG9b4PA%3D%3D\"}]}",
+      "cf-cache-status": "DYNAMIC",
+      "Content-Encoding": "gzip",
+      "CF-RAY": "99d799801fabb8d4-LAX"
+    },
+    "cookies": {},
+    "elapsed": 0.29649
+  },
+  {
+    "test_number": 20,
+    "test_name": "Double URL encoded API key",
+    "method": "POST",
+    "url": "https://hammerfusion.com/gsmfusion_api/index.php",
+    "params": {
+      "username": "scalmobile",
+      "api_key": "C0H6-T2S9-H9A0-G0T9-X3N7",
+      "action": "getServerList"
+    },
+    "headers": {},
+    "status_code": 200,
+    "response_text": "<?phpxml version=\"1.0\" encoding=\"utf-8\"?><error>Invalid User!</error>",
+    "response_headers": {
+      "Date": "Wed, 12 Nov 2025 17:02:54 GMT",
+      "Content-Type": "application/xml",
+      "Transfer-Encoding": "chunked",
+      "Connection": "keep-alive",
+      "Server": "cloudflare",
+      "Nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+      "Report-To": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=yumV6cVlYCMKnj2cb7NGHfIGnGHLGgUNVMe5nSfh45k2Qzr04IGPIYsnVecTfegZjlEf5cvuOrZXPWYbvJJU089kvQPxRsZUVx4%2FNeSLdQ%3D%3D\"}]}",
+      "cf-cache-status": "DYNAMIC",
+      "Content-Encoding": "gzip",
+      "CF-RAY": "99d7998228165121-LAX"
+    },
+    "cookies": {},
+    "elapsed": 0.324028
+  },
+  {
+    "test_number": 21,
+    "test_name": "API key in Authorization header",
+    "method": "POST",
+    "url": "https://hammerfusion.com/gsmfusion_api/index.php",
+    "params": {
+      "username": "scalmobile",
+      "action": "getServerList"
+    },
+    "headers": {
+      "Authorization": "C0H6-T2S9-H9A0-G0T9-X3N7"
+    },
+    "status_code": 200,
+    "response_text": "<?phpxml version=\"1.0\" encoding=\"utf-8\"?><error>Invalid User!</error>",
+    "response_headers": {
+      "Date": "Wed, 12 Nov 2025 17:02:54 GMT",
+      "Content-Type": "application/xml",
+      "Transfer-Encoding": "chunked",
+      "Connection": "keep-alive",
+      "Server": "cloudflare",
+      "Nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+      "Report-To": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=1OlNCL0znPf3GzE8v7Phuf44sJ1vkvL44cOkbw8yOUMBIyosr2Evjk04ZKUuo8PmkB20eesCP77VUCmJG8OKz9OAlj78vxoy1p2rxOHGxA%3D%3D\"}]}",
+      "cf-cache-status": "DYNAMIC",
+      "Content-Encoding": "gzip",
+      "CF-RAY": "99d799841a7583d5-LAX"
+    },
+    "cookies": {},
+    "elapsed": 0.301337
+  },
+  {
+    "test_number": 22,
+    "test_name": "Bearer token in Authorization",
+    "method": "POST",
+    "url": "https://hammerfusion.com/gsmfusion_api/index.php",
+    "params": {
+      "username": "scalmobile",
+      "action": "getServerList"
+    },
+    "headers": {
+      "Authorization": "Bearer C0H6-T2S9-H9A0-G0T9-X3N7"
+    },
+    "status_code": 200,
+    "response_text": "<?phpxml version=\"1.0\" encoding=\"utf-8\"?><error>Invalid User!</error>",
+    "response_headers": {
+      "Date": "Wed, 12 Nov 2025 17:02:54 GMT",
+      "Content-Type": "application/xml",
+      "Transfer-Encoding": "chunked",
+      "Connection": "keep-alive",
+      "Server": "cloudflare",
+      "Nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+      "Report-To": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=U7fCNHOC0jO1lHwL8G9faYkjljyJ2Wd0AjxFtVyBv%2BA84%2FADwPGin6JktbRfoTKavWVzZlR6jsYGjHKc1nJNB8UUk1RM866sriwBD8K1dA%3D%3D\"}]}",
+      "cf-cache-status": "DYNAMIC",
+      "Content-Encoding": "gzip",
+      "CF-RAY": "99d79985ffe38a80-LAX"
+    },
+    "cookies": {},
+    "elapsed": 0.293649
+  },
+  {
+    "test_number": 23,
+    "test_name": "Basic Authentication",
+    "method": "POST",
+    "url": "https://hammerfusion.com/gsmfusion_api/index.php",
+    "params": {
+      "action": "getServerList"
+    },
+    "headers": {
+      "Authorization": "Basic c2NhbG1vYmlsZTpDMEg2LVQyUzktSDlBMC1HMFQ5LVgzTjc="
+    },
+    "status_code": 200,
+    "response_text": "<?phpxml version=\"1.0\" encoding=\"utf-8\"?><error>Invalid User!</error>",
+    "response_headers": {
+      "Date": "Wed, 12 Nov 2025 17:02:54 GMT",
+      "Content-Type": "application/xml",
+      "Transfer-Encoding": "chunked",
+      "Connection": "keep-alive",
+      "Server": "cloudflare",
+      "Nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+      "Report-To": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=aB2h%2Bh3jrln%2FjfYS1ImWrBpX%2Bu%2FaBTd0Ej%2B0eNaV1MnENTmEomvTo%2Bnk%2BLsZbQompAdvZFcY7IypHiF4KpheJkueuh8rUeUJdBBLZJ%2Bo5w%3D%3D\"}]}",
+      "cf-cache-status": "DYNAMIC",
+      "Content-Encoding": "gzip",
+      "CF-RAY": "99d79987dcd4d7ab-LAX"
+    },
+    "cookies": {},
+    "elapsed": 0.287934
+  },
+  {
+    "test_number": 24,
+    "test_name": "X-API-Key header",
+    "method": "POST",
+    "url": "https://hammerfusion.com/gsmfusion_api/index.php",
+    "params": {
+      "username": "scalmobile",
+      "action": "getServerList"
+    },
+    "headers": {
+      "X-API-Key": "C0H6-T2S9-H9A0-G0T9-X3N7"
+    },
+    "status_code": 200,
+    "response_text": "<?phpxml version=\"1.0\" encoding=\"utf-8\"?><error>Invalid User!</error>",
+    "response_headers": {
+      "Date": "Wed, 12 Nov 2025 17:02:55 GMT",
+      "Content-Type": "application/xml",
+      "Transfer-Encoding": "chunked",
+      "Connection": "keep-alive",
+      "Server": "cloudflare",
+      "Nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+      "Report-To": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=dJi%2BPP36R2Qk1i4Di2V2s9xrHyegkIQtGtPGusf9704b%2BWAYhhNDR8NRcq0bGnPxVEF1Uo3SdGIYeN%2Bbuy65ihM8T6V0gm8hesLA2ro5gQ%3D%3D\"}]}",
+      "cf-cache-status": "DYNAMIC",
+      "Content-Encoding": "gzip",
+      "CF-RAY": "99d79989cfd65708-LAX"
+    },
+    "cookies": {},
+    "elapsed": 0.293795
+  },
+  {
+    "test_number": 25,
+    "test_name": "X-Auth-Token header",
+    "method": "POST",
+    "url": "https://hammerfusion.com/gsmfusion_api/index.php",
+    "params": {
+      "username": "scalmobile",
+      "action": "getServerList"
+    },
+    "headers": {
+      "X-Auth-Token": "C0H6-T2S9-H9A0-G0T9-X3N7"
+    },
+    "status_code": 200,
+    "response_text": "<?phpxml version=\"1.0\" encoding=\"utf-8\"?><error>Invalid User!</error>",
+    "response_headers": {
+      "Date": "Wed, 12 Nov 2025 17:02:55 GMT",
+      "Content-Type": "application/xml",
+      "Transfer-Encoding": "chunked",
+      "Connection": "keep-alive",
+      "Server": "cloudflare",
+      "Nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+      "Report-To": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=9wYYLuGBlQFUJG9ksC4BEQNYlKHccCsrsojmt%2FQcbt5zamntO117nUamxHsW6WMaIfc3kLZkfubca7ILhSRQu11psYqI%2BGQW5nM7dFe7Vw%3D%3D\"}]}",
+      "cf-cache-status": "DYNAMIC",
+      "Content-Encoding": "gzip",
+      "CF-RAY": "99d7998bab11f6b1-LAX"
+    },
+    "cookies": {},
+    "elapsed": 0.285657
+  },
+  {
+    "test_number": 26,
+    "test_name": "API-Key header",
+    "method": "POST",
+    "url": "https://hammerfusion.com/gsmfusion_api/index.php",
+    "params": {
+      "username": "scalmobile",
+      "action": "getServerList"
+    },
+    "headers": {
+      "API-Key": "C0H6-T2S9-H9A0-G0T9-X3N7"
+    },
+    "status_code": 200,
+    "response_text": "<?phpxml version=\"1.0\" encoding=\"utf-8\"?><error>Invalid User!</error>",
+    "response_headers": {
+      "Date": "Wed, 12 Nov 2025 17:02:55 GMT",
+      "Content-Type": "application/xml",
+      "Transfer-Encoding": "chunked",
+      "Connection": "keep-alive",
+      "Server": "cloudflare",
+      "Nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+      "Report-To": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=MzKwbPqw6%2FlUxBvyNaEwmxj2WHxzOVPzXh5jnfpORo5jpO1L%2FBl%2F%2B2oBTWRLhH58lEkoGkuhgd9bHZNr5SwhP7oIc05BhDscp9VijDW9CA%3D%3D\"}]}",
+      "cf-cache-status": "DYNAMIC",
+      "Content-Encoding": "gzip",
+      "CF-RAY": "99d7998d8d252ea8-LAX"
+    },
+    "cookies": {},
+    "elapsed": 0.298109
+  },
+  {
+    "test_number": 27,
+    "test_name": "Multiple auth headers",
+    "method": "POST",
+    "url": "https://hammerfusion.com/gsmfusion_api/index.php",
+    "params": {
+      "action": "getServerList"
+    },
+    "headers": {
+      "X-Username": "scalmobile",
+      "X-API-Key": "C0H6-T2S9-H9A0-G0T9-X3N7"
+    },
+    "status_code": 200,
+    "response_text": "<?phpxml version=\"1.0\" encoding=\"utf-8\"?><error>Invalid User!</error>",
+    "response_headers": {
+      "Date": "Wed, 12 Nov 2025 17:02:56 GMT",
+      "Content-Type": "application/xml",
+      "Transfer-Encoding": "chunked",
+      "Connection": "keep-alive",
+      "Server": "cloudflare",
+      "Nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+      "Report-To": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=Om45y50l7DnSZ9GQI1YZOf2PCo3iaHiVjC0VKO3FF1RXIe7%2BcLpi9vnJzL4MV9%2FjmJ0grggJKvXNYdW6%2FA%2FTqcjneXAjRRBv5Yudg3GUSw%3D%3D\"}]}",
+      "cf-cache-status": "DYNAMIC",
+      "Content-Encoding": "gzip",
+      "CF-RAY": "99d7998f8f73b851-LAX"
+    },
+    "cookies": {},
+    "elapsed": 0.306887
+  },
+  {
+    "test_number": 28,
+    "test_name": "application/x-www-form-urlencoded",
+    "method": "POST",
+    "url": "https://hammerfusion.com/gsmfusion_api/index.php",
+    "params": {
+      "username": "scalmobile",
+      "api_key": "C0H6-T2S9-H9A0-G0T9-X3N7",
+      "action": "getServerList"
+    },
+    "headers": {
+      "Content-Type": "application/x-www-form-urlencoded"
+    },
+    "status_code": 200,
+    "response_text": "<?phpxml version=\"1.0\" encoding=\"utf-8\"?><error>Invalid User!</error>",
+    "response_headers": {
+      "Date": "Wed, 12 Nov 2025 17:02:56 GMT",
+      "Content-Type": "application/xml",
+      "Transfer-Encoding": "chunked",
+      "Connection": "keep-alive",
+      "Server": "cloudflare",
+      "Nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+      "Report-To": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=xbkeUbrksBjRMoJPlP2SAFifuHRfOUisy6t%2FVpJfm%2BBz1%2BXTNgvhQgDTXucvVv4WdUiUG%2BXs7NkuBkhCXpLZFcn14oe5qXfBfZ4tWaM%3D\"}]}",
+      "cf-cache-status": "DYNAMIC",
+      "Content-Encoding": "gzip",
+      "CF-RAY": "99d799918cee83f1-LAX"
+    },
+    "cookies": {},
+    "elapsed": 0.316753
+  },
+  {
+    "test_number": 29,
+    "test_name": "application/json content type",
+    "method": "POST",
+    "url": "https://hammerfusion.com/gsmfusion_api/index.php",
+    "params": {
+      "username": "scalmobile",
+      "api_key": "C0H6-T2S9-H9A0-G0T9-X3N7",
+      "action": "getServerList"
+    },
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "status_code": 200,
+    "response_text": "<?phpxml version=\"1.0\" encoding=\"utf-8\"?><error>Invalid User!</error>",
+    "response_headers": {
+      "Date": "Wed, 12 Nov 2025 17:02:56 GMT",
+      "Content-Type": "application/xml",
+      "Transfer-Encoding": "chunked",
+      "Connection": "keep-alive",
+      "Server": "cloudflare",
+      "Nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+      "Report-To": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=EVZP%2F9hMUCrNr68UvCwL1WVakD4vby9FUW1eFqVD9qiw1k%2B%2F8PVYstPsQSVpbVKasIaa%2Fs4MVSiTKJI7hdXYF7%2BXBETnRKKDnUytSoBB%2FQ%3D%3D\"}]}",
+      "cf-cache-status": "DYNAMIC",
+      "Content-Encoding": "gzip",
+      "CF-RAY": "99d799937c5429ab-LAX"
+    },
+    "cookies": {},
+    "elapsed": 0.289712
+  },
+  {
+    "test_number": 30,
+    "test_name": "application/xml content type",
+    "method": "POST",
+    "url": "https://hammerfusion.com/gsmfusion_api/index.php",
+    "params": {
+      "username": "scalmobile",
+      "api_key": "C0H6-T2S9-H9A0-G0T9-X3N7",
+      "action": "getServerList"
+    },
+    "headers": {
+      "Content-Type": "application/xml"
+    },
+    "status_code": 200,
+    "response_text": "<?phpxml version=\"1.0\" encoding=\"utf-8\"?><error>Invalid User!</error>",
+    "response_headers": {
+      "Date": "Wed, 12 Nov 2025 17:02:57 GMT",
+      "Content-Type": "application/xml",
+      "Transfer-Encoding": "chunked",
+      "Connection": "keep-alive",
+      "Server": "cloudflare",
+      "Nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+      "Report-To": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=KdfBSndxsdZa0PtDBHsHYfU5SYQ1aJyNooy6q5MrNqWo4fXCTfmeTYSBTmSLBCR8SxLbyLgkUp86qYkMfHi6gtJggEfhrihqJ5B3N%2BUO5A%3D%3D\"}]}",
+      "cf-cache-status": "DYNAMIC",
+      "Content-Encoding": "gzip",
+      "CF-RAY": "99d799955a9069ce-LAX"
+    },
+    "cookies": {},
+    "elapsed": 0.294682
+  },
+  {
+    "test_number": 31,
+    "test_name": "Endpoint variation 1: https://hammerfusion.com/gsmfusion_api/index.php",
+    "method": "POST",
+    "url": "https://hammerfusion.com/gsmfusion_api/index.php",
+    "params": {
+      "username": "scalmobile",
+      "api_key": "C0H6-T2S9-H9A0-G0T9-X3N7",
+      "action": "getServerList"
+    },
+    "headers": {},
+    "status_code": 200,
+    "response_text": "<?phpxml version=\"1.0\" encoding=\"utf-8\"?><error>Invalid User!</error>",
+    "response_headers": {
+      "Date": "Wed, 12 Nov 2025 17:02:57 GMT",
+      "Content-Type": "application/xml",
+      "Transfer-Encoding": "chunked",
+      "Connection": "keep-alive",
+      "Server": "cloudflare",
+      "Nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+      "Report-To": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=4wY3V075JOicA5tbD14B2R6iq8IJF9NUXflWrJVIhGGd%2BnCRnbWV4RaFWRXBTsR4DrZwoOy48aC44r8DemCo2hUUJPPADrEzNTbef5s%3D\"}]}",
+      "cf-cache-status": "DYNAMIC",
+      "Content-Encoding": "gzip",
+      "CF-RAY": "99d799974fc35355-LAX"
+    },
+    "cookies": {},
+    "elapsed": 0.291341
+  },
+  {
+    "test_number": 32,
+    "test_name": "Endpoint variation 2: https://hammerfusion.com/api/index.php",
+    "method": "POST",
+    "url": "https://hammerfusion.com/api/index.php",
+    "params": {
+      "username": "scalmobile",
+      "api_key": "C0H6-T2S9-H9A0-G0T9-X3N7",
+      "action": "getServerList"
+    },
+    "headers": {},
+    "status_code": 200,
+    "response_text": "{\"apiversion\":\"2.0.0\",\"ERROR\":[{\"MESSAGE\":\"Invalid User!\"}]}",
+    "response_headers": {
+      "Date": "Wed, 12 Nov 2025 17:02:57 GMT",
+      "Content-Type": "text/html; charset=UTF-8",
+      "Transfer-Encoding": "chunked",
+      "Connection": "keep-alive",
+      "Server": "cloudflare",
+      "Nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+      "Report-To": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=FuzaeaQrQS6qCoVUVDdgnO1LNXTTAcmtrpQsbbsy5MEp9EFjA0qKjb6VlvCrXflLQSNx8iwEaLNcNTHjzVkrSBbr3Y0McZ1n2MgpRqZ9%2Bw%3D%3D\"}]}",
+      "cf-cache-status": "DYNAMIC",
+      "Content-Encoding": "gzip",
+      "CF-RAY": "99d799994bdf6a27-LAX"
+    },
+    "cookies": {},
+    "elapsed": 0.343169
+  },
+  {
+    "test_number": 33,
+    "test_name": "Endpoint variation 3: https://hammerfusion.com/gsmfusion_api/",
+    "method": "POST",
+    "url": "https://hammerfusion.com/gsmfusion_api/",
+    "params": {
+      "username": "scalmobile",
+      "api_key": "C0H6-T2S9-H9A0-G0T9-X3N7",
+      "action": "getServerList"
+    },
+    "headers": {},
+    "status_code": 200,
+    "response_text": "<?phpxml version=\"1.0\" encoding=\"utf-8\"?><error>Invalid User!</error>",
+    "response_headers": {
+      "Date": "Wed, 12 Nov 2025 17:02:58 GMT",
+      "Content-Type": "application/xml",
+      "Transfer-Encoding": "chunked",
+      "Connection": "keep-alive",
+      "Server": "cloudflare",
+      "Nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+      "Report-To": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=kI1KfOQw13GHIBXXyg%2BL3hSEcljAicuehnJswtyuw1UTAT7GV1VQWikqsXbcWNHepyUe4Zdo79zsoxdrV1Zn%2Fg17QtWnoRmQOAl62nrK0A%3D%3D\"}]}",
+      "cf-cache-status": "DYNAMIC",
+      "Content-Encoding": "gzip",
+      "CF-RAY": "99d7999b5fb4dbcc-LAX"
+    },
+    "cookies": {},
+    "elapsed": 0.280724
+  },
+  {
+    "test_number": 34,
+    "test_name": "Endpoint variation 4: https://hammerfusion.com/api/",
+    "method": "POST",
+    "url": "https://hammerfusion.com/api/",
+    "params": {
+      "username": "scalmobile",
+      "api_key": "C0H6-T2S9-H9A0-G0T9-X3N7",
+      "action": "getServerList"
+    },
+    "headers": {},
+    "status_code": 200,
+    "response_text": "{\"apiversion\":\"2.0.0\",\"ERROR\":[{\"MESSAGE\":\"Invalid User!\"}]}",
+    "response_headers": {
+      "Date": "Wed, 12 Nov 2025 17:02:58 GMT",
+      "Content-Type": "text/html; charset=UTF-8",
+      "Transfer-Encoding": "chunked",
+      "Connection": "keep-alive",
+      "Server": "cloudflare",
+      "Nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+      "Report-To": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=E0Dojz8AWErNrY3Lfnb1t%2Fz406pPBMLtyPkQAWh0wlnADO6MH0RmJjKUCqwFGMLPz1t%2BdX721fGzsYC4kapO54GaCd5MgmnsphVtGHPSzg%3D%3D\"}]}",
+      "cf-cache-status": "DYNAMIC",
+      "Content-Encoding": "gzip",
+      "CF-RAY": "99d7999d2c272f2e-LAX"
+    },
+    "cookies": {},
+    "elapsed": 0.319899
+  },
+  {
+    "test_number": 35,
+    "test_name": "Alternative /api/ endpoint with GET",
+    "method": "GET",
+    "url": "https://hammerfusion.com/api/index.php",
+    "params": {
+      "username": "scalmobile",
+      "api_key": "C0H6-T2S9-H9A0-G0T9-X3N7",
+      "action": "getServerList"
+    },
+    "headers": {},
+    "status_code": 200,
+    "response_text": "{\"apiversion\":\"2.0.0\",\"ERROR\":[{\"MESSAGE\":\"Invalid User!\"}]}",
+    "response_headers": {
+      "Date": "Wed, 12 Nov 2025 17:02:58 GMT",
+      "Content-Type": "text/html; charset=UTF-8",
+      "Transfer-Encoding": "chunked",
+      "Connection": "keep-alive",
+      "Server": "cloudflare",
+      "Nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+      "Report-To": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=ODk8ppv%2BX0am1FYbdOqicTMtwjY4t7MnbzpLFFO%2FW1ljrASVKAXD%2BTNnx9jVS5hLHMfdce0FnJLbxieyO6BTeoNjO6L0Csae9ffG2iAHFg%3D%3D\"}]}",
+      "cf-cache-status": "DYNAMIC",
+      "Content-Encoding": "gzip",
+      "CF-RAY": "99d7999f2c99498f-LAX"
+    },
+    "cookies": {},
+    "elapsed": 0.303592
+  },
+  {
+    "test_number": 36,
+    "test_name": "Without action parameter",
+    "method": "POST",
+    "url": "https://hammerfusion.com/gsmfusion_api/index.php",
+    "params": {
+      "username": "scalmobile",
+      "api_key": "C0H6-T2S9-H9A0-G0T9-X3N7"
+    },
+    "headers": {},
+    "status_code": 200,
+    "response_text": "<?phpxml version=\"1.0\" encoding=\"utf-8\"?><error>Invalid User!</error>",
+    "response_headers": {
+      "Date": "Wed, 12 Nov 2025 17:02:58 GMT",
+      "Content-Type": "application/xml",
+      "Transfer-Encoding": "chunked",
+      "Connection": "keep-alive",
+      "Server": "cloudflare",
+      "Nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+      "Report-To": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=xPVf2CjPJSuLJnsLZMUFYv1Dl1FJr%2BcBdF56aV3IA%2FwaorXO7I%2FdFezxhf3HMf5ErlXXz0Ptylfcv%2FihNcrwME3wjCAJAC8%2FIC2k70c%3D\"}]}",
+      "cf-cache-status": "DYNAMIC",
+      "Content-Encoding": "gzip",
+      "CF-RAY": "99d799a11d97ef79-LAX"
+    },
+    "cookies": {},
+    "elapsed": 0.290887
+  },
+  {
+    "test_number": 37,
+    "test_name": "With version parameter",
+    "method": "POST",
+    "url": "https://hammerfusion.com/gsmfusion_api/index.php",
+    "params": {
+      "username": "scalmobile",
+      "api_key": "C0H6-T2S9-H9A0-G0T9-X3N7",
+      "action": "getServerList",
+      "version": "1.0"
+    },
+    "headers": {},
+    "status_code": 200,
+    "response_text": "<?phpxml version=\"1.0\" encoding=\"utf-8\"?><error>Invalid User!</error>",
+    "response_headers": {
+      "Date": "Wed, 12 Nov 2025 17:02:59 GMT",
+      "Content-Type": "application/xml",
+      "Transfer-Encoding": "chunked",
+      "Connection": "keep-alive",
+      "Server": "cloudflare",
+      "Nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+      "Report-To": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=ojaoD0IVkkXKCTigiXM9CnMfvfhcm0aWIoFobi%2FdFqhbwT0DCj3UBjoHGzTs4QB0bFDY9BPQ1KmN5yiU%2BlZenorG4pMbaGNI9JlrQNYkHQ%3D%3D\"}]}",
+      "cf-cache-status": "DYNAMIC",
+      "Content-Encoding": "gzip",
+      "CF-RAY": "99d799a2eeb909cf-LAX"
+    },
+    "cookies": {},
+    "elapsed": 0.288826
+  },
+  {
+    "test_number": 38,
+    "test_name": "With format=json parameter",
+    "method": "POST",
+    "url": "https://hammerfusion.com/gsmfusion_api/index.php",
+    "params": {
+      "username": "scalmobile",
+      "api_key": "C0H6-T2S9-H9A0-G0T9-X3N7",
+      "action": "getServerList",
+      "format": "json"
+    },
+    "headers": {},
+    "status_code": 200,
+    "response_text": "<?phpxml version=\"1.0\" encoding=\"utf-8\"?><error>Invalid User!</error>",
+    "response_headers": {
+      "Date": "Wed, 12 Nov 2025 17:02:59 GMT",
+      "Content-Type": "application/xml",
+      "Transfer-Encoding": "chunked",
+      "Connection": "keep-alive",
+      "Server": "cloudflare",
+      "Report-To": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=ufXPgDhP8LvQNgXx5p1ccuhyTE0zEcr388m3ayhswaYt07O6Ot3qdJcrnYeC7klQu0QDLggz0CjUdyega1KWu5hJQJsMiUUMI8qOtbtIUA%3D%3D\"}]}",
+      "Nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+      "cf-cache-status": "DYNAMIC",
+      "Content-Encoding": "gzip",
+      "CF-RAY": "99d799a4de6f2ed3-LAX"
+    },
+    "cookies": {},
+    "elapsed": 0.548658
+  },
+  {
+    "test_number": 39,
+    "test_name": "With format=xml parameter",
+    "method": "POST",
+    "url": "https://hammerfusion.com/gsmfusion_api/index.php",
+    "params": {
+      "username": "scalmobile",
+      "api_key": "C0H6-T2S9-H9A0-G0T9-X3N7",
+      "action": "getServerList",
+      "format": "xml"
+    },
+    "headers": {},
+    "status_code": 200,
+    "response_text": "<?phpxml version=\"1.0\" encoding=\"utf-8\"?><error>Invalid User!</error>",
+    "response_headers": {
+      "Date": "Wed, 12 Nov 2025 17:03:00 GMT",
+      "Content-Type": "application/xml",
+      "Transfer-Encoding": "chunked",
+      "Connection": "keep-alive",
+      "Server": "cloudflare",
+      "Nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+      "Report-To": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=U1NBvJCaFTNO8uixgzFyuWOfW1SEgThgOKWCtwIAXilCcnae%2BnSFIumSzR%2F%2BideiQNLTOImbMmDHkQDWVf0%2BOm6KCOtFom8ee29R5i006w%3D%3D\"}]}",
+      "cf-cache-status": "DYNAMIC",
+      "Content-Encoding": "gzip",
+      "CF-RAY": "99d799a848cb8535-LAX"
+    },
+    "cookies": {},
+    "elapsed": 0.352323
+  },
+  {
+    "test_number": 40,
+    "test_name": "PUT method",
+    "method": "PUT",
+    "url": "https://hammerfusion.com/gsmfusion_api/index.php",
+    "params": {
+      "username": "scalmobile",
+      "api_key": "C0H6-T2S9-H9A0-G0T9-X3N7",
+      "action": "getServerList"
+    },
+    "headers": {},
+    "status_code": 200,
+    "response_text": "<?phpxml version=\"1.0\" encoding=\"utf-8\"?><error>Invalid User!</error>",
+    "response_headers": {
+      "Date": "Wed, 12 Nov 2025 17:03:00 GMT",
+      "Content-Type": "application/xml",
+      "Transfer-Encoding": "chunked",
+      "Connection": "keep-alive",
+      "Server": "cloudflare",
+      "Nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+      "Report-To": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=QKeOOxd6zWMurO5sTaAFjzWNbjR6JT8f23iIKeOHguUtZdmCXCbbCr%2ByTqkwtiWzU01b9boZT7vn2zivdeCA7VTCxUTym4LfvPBMRHnTYw%3D%3D\"}]}",
+      "cf-cache-status": "DYNAMIC",
+      "Content-Encoding": "gzip",
+      "CF-RAY": "99d799aa9ae4c4c6-LAX"
+    },
+    "cookies": {},
+    "elapsed": 0.301756
+  },
+  {
+    "test_number": 41,
+    "test_name": "Public endpoint: version",
+    "method": "GET",
+    "url": "https://hammerfusion.com/gsmfusion_api/index.php",
+    "params": {
+      "action": "version"
+    },
+    "headers": {},
+    "status_code": 200,
+    "response_text": "<?phpxml version=\"1.0\" encoding=\"utf-8\"?><error>Invalid User!</error>",
+    "response_headers": {
+      "Date": "Wed, 12 Nov 2025 17:03:00 GMT",
+      "Content-Type": "application/xml",
+      "Transfer-Encoding": "chunked",
+      "Connection": "keep-alive",
+      "Server": "cloudflare",
+      "Nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+      "Report-To": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=IRSGlhUU8me0nU6IZlqzYK97hi5ll31hWbfuX9IyfSUvdD%2FO9itgT84KXf9KaiEkAfpL%2BUJlidILX3Fo38T7iscOdmI1rdivq2K9kMXNoQ%3D%3D\"}]}",
+      "cf-cache-status": "DYNAMIC",
+      "Content-Encoding": "gzip",
+      "CF-RAY": "99d799ac8d582aed-LAX"
+    },
+    "cookies": {},
+    "elapsed": 0.300764
+  },
+  {
+    "test_number": 42,
+    "test_name": "Public endpoint: info",
+    "method": "GET",
+    "url": "https://hammerfusion.com/gsmfusion_api/index.php",
+    "params": {
+      "action": "info"
+    },
+    "headers": {},
+    "status_code": 200,
+    "response_text": "<?phpxml version=\"1.0\" encoding=\"utf-8\"?><error>Invalid User!</error>",
+    "response_headers": {
+      "Date": "Wed, 12 Nov 2025 17:03:01 GMT",
+      "Content-Type": "application/xml",
+      "Transfer-Encoding": "chunked",
+      "Connection": "keep-alive",
+      "Server": "cloudflare",
+      "Nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+      "Report-To": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=JVGLDlJ41T5waEjAODzVsbrkgIYclhgtwCVJuqY6Dvfvx1p6aIzDUABh1vEZLjgID%2BmCEZEjzb5K%2B005H2RsI9lufOidnIq5sEGn2ZfBWA%3D%3D\"}]}",
+      "cf-cache-status": "DYNAMIC",
+      "Content-Encoding": "gzip",
+      "CF-RAY": "99d799ae7a5c5d5c-LAX"
+    },
+    "cookies": {},
+    "elapsed": 0.302224
+  },
+  {
+    "test_number": 43,
+    "test_name": "Public endpoint: status",
+    "method": "GET",
+    "url": "https://hammerfusion.com/gsmfusion_api/index.php",
+    "params": {
+      "action": "status"
+    },
+    "headers": {},
+    "status_code": 200,
+    "response_text": "<?phpxml version=\"1.0\" encoding=\"utf-8\"?><error>Invalid User!</error>",
+    "response_headers": {
+      "Date": "Wed, 12 Nov 2025 17:03:01 GMT",
+      "Content-Type": "application/xml",
+      "Transfer-Encoding": "chunked",
+      "Connection": "keep-alive",
+      "Server": "cloudflare",
+      "Nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+      "Report-To": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=wOMftUxfmbmoJ5YCRZBCls3M9qxArf5XS3%2FcmsIZFfYrBt%2FKpLCK%2FSIsdOVp44vH04%2FEfQKh6I9wn%2B0nHeOgZt5eN6GEx5W9%2Bmg%2BpV5c4A%3D%3D\"}]}",
+      "cf-cache-status": "DYNAMIC",
+      "Content-Encoding": "gzip",
+      "CF-RAY": "99d799b06e3278e9-LAX"
+    },
+    "cookies": {},
+    "elapsed": 0.303436
+  },
+  {
+    "test_number": 44,
+    "test_name": "Public endpoint: ping",
+    "method": "GET",
+    "url": "https://hammerfusion.com/gsmfusion_api/index.php",
+    "params": {
+      "action": "ping"
+    },
+    "headers": {},
+    "status_code": 200,
+    "response_text": "<?phpxml version=\"1.0\" encoding=\"utf-8\"?><error>Invalid User!</error>",
+    "response_headers": {
+      "Date": "Wed, 12 Nov 2025 17:03:02 GMT",
+      "Content-Type": "application/xml",
+      "Transfer-Encoding": "chunked",
+      "Connection": "keep-alive",
+      "Server": "cloudflare",
+      "Report-To": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=f6I2IqzqlBb1mHeq7ii9hdKBQalKYUWOZuGJp6BWakhz%2FxnW%2BfUcw06lSb%2BTLBqKie8d4UG%2BvFKCdPXMQtCdCmmYrcqqF2cVMWQYqRJMCA%3D%3D\"}]}",
+      "Nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+      "cf-cache-status": "DYNAMIC",
+      "Content-Encoding": "gzip",
+      "CF-RAY": "99d799b26fd6a708-LAX"
+    },
+    "cookies": {},
+    "elapsed": 0.592149
+  },
+  {
+    "test_number": 45,
+    "test_name": "Public endpoint: health",
+    "method": "GET",
+    "url": "https://hammerfusion.com/gsmfusion_api/index.php",
+    "params": {
+      "action": "health"
+    },
+    "headers": {},
+    "status_code": 200,
+    "response_text": "<?phpxml version=\"1.0\" encoding=\"utf-8\"?><error>Invalid User!</error>",
+    "response_headers": {
+      "Date": "Wed, 12 Nov 2025 17:03:02 GMT",
+      "Content-Type": "application/xml",
+      "Transfer-Encoding": "chunked",
+      "Connection": "keep-alive",
+      "Server": "cloudflare",
+      "Nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+      "Report-To": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=FnTxa7B%2Bxk8qDaeIGh1eyL5X5ExOZ70OpCoJxmxJ%2BLVSMZgmPXpBgmfuni04MxtKb10upPkbcWgv7USD18p3kBZCQtA%2FcvU%2FjTFcVEpEbw%3D%3D\"}]}",
+      "cf-cache-status": "DYNAMIC",
+      "Content-Encoding": "gzip",
+      "CF-RAY": "99d799b65eec2378-LAX"
+    },
+    "cookies": {},
+    "elapsed": 0.375768
+  },
+  {
+    "test_number": 46,
+    "test_name": "Public endpoint: getVersion",
+    "method": "GET",
+    "url": "https://hammerfusion.com/gsmfusion_api/index.php",
+    "params": {
+      "action": "getVersion"
+    },
+    "headers": {},
+    "status_code": 200,
+    "response_text": "<?phpxml version=\"1.0\" encoding=\"utf-8\"?><error>Invalid User!</error>",
+    "response_headers": {
+      "Date": "Wed, 12 Nov 2025 17:03:02 GMT",
+      "Content-Type": "application/xml",
+      "Transfer-Encoding": "chunked",
+      "Connection": "keep-alive",
+      "Server": "cloudflare",
+      "Nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+      "Report-To": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=44QvbcUcHpUvYulqfbaVIGf9WL2WKxcGRu2fdpnh%2B3wQOYPYRNE%2FeVhlfAP659VGQ5wqo7aebsSfpsXp3xldPR7q0oaS945eTnbYWy1XnQ%3D%3D\"}]}",
+      "cf-cache-status": "DYNAMIC",
+      "Content-Encoding": "gzip",
+      "CF-RAY": "99d799b8a9013efd-LAX"
+    },
+    "cookies": {},
+    "elapsed": 0.412122
+  },
+  {
+    "test_number": 47,
+    "test_name": "Public endpoint: getInfo",
+    "method": "GET",
+    "url": "https://hammerfusion.com/gsmfusion_api/index.php",
+    "params": {
+      "action": "getInfo"
+    },
+    "headers": {},
+    "status_code": 200,
+    "response_text": "<?phpxml version=\"1.0\" encoding=\"utf-8\"?><error>Invalid User!</error>",
+    "response_headers": {
+      "Date": "Wed, 12 Nov 2025 17:03:03 GMT",
+      "Content-Type": "application/xml",
+      "Transfer-Encoding": "chunked",
+      "Connection": "keep-alive",
+      "Server": "cloudflare",
+      "Nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+      "Report-To": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=JR2HA5GKeMrlUgig2teHaOnVBQpLAY%2Bf0xJaix9oBckEOyJ%2FbA3VKnNRYh7hvWORl9hnJc4hcwBgx%2FPzk7C69zNkho6%2Fc0vRm%2B%2BYjXfThA%3D%3D\"}]}",
+      "cf-cache-status": "DYNAMIC",
+      "Content-Encoding": "gzip",
+      "CF-RAY": "99d799bb5f120fb2-LAX"
+    },
+    "cookies": {},
+    "elapsed": 0.362629
+  },
+  {
+    "test_number": 48,
+    "test_name": "Public endpoint: getStatus",
+    "method": "GET",
+    "url": "https://hammerfusion.com/gsmfusion_api/index.php",
+    "params": {
+      "action": "getStatus"
+    },
+    "headers": {},
+    "status_code": 200,
+    "response_text": "<?phpxml version=\"1.0\" encoding=\"utf-8\"?><error>Invalid User!</error>",
+    "response_headers": {
+      "Date": "Wed, 12 Nov 2025 17:03:05 GMT",
+      "Content-Type": "application/xml",
+      "Transfer-Encoding": "chunked",
+      "Connection": "keep-alive",
+      "Server": "cloudflare",
+      "Nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+      "Report-To": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=iOA8l5gkRqQOKjBEmrZzIE5waROByTvmxGri7O0uYJ8IYnQKrSt3VXixPXfV9PAWFLpCO8bPKw68xW2dSDSBobKlkm8GRxpRnFs%2FwFvtVQ%3D%3D\"}]}",
+      "cf-cache-status": "DYNAMIC",
+      "Content-Encoding": "gzip",
+      "CF-RAY": "99d799bd9abf4bb4-LAX"
+    },
+    "cookies": {},
+    "elapsed": 2.39472
+  },
+  {
+    "test_number": 49,
+    "test_name": "Public endpoint: help",
+    "method": "GET",
+    "url": "https://hammerfusion.com/gsmfusion_api/index.php",
+    "params": {
+      "action": "help"
+    },
+    "headers": {},
+    "status_code": 200,
+    "response_text": "<?phpxml version=\"1.0\" encoding=\"utf-8\"?><error>Invalid User!</error>",
+    "response_headers": {
+      "Date": "Wed, 12 Nov 2025 17:03:07 GMT",
+      "Content-Type": "application/xml",
+      "Transfer-Encoding": "chunked",
+      "Connection": "keep-alive",
+      "Server": "cloudflare",
+      "Nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+      "Report-To": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=u3ser3eSbUVveXDuvDQf%2FDAQJEjh5k%2FtT2HTrPxTP%2BY3RqYcW63rH0IHp9VeAc%2BkfjtKK%2FJrWbYDZHJ4%2FFl5yu3wbOf%2BvYBsHMQBjrE%3D\"}]}",
+      "cf-cache-status": "DYNAMIC",
+      "Content-Encoding": "gzip",
+      "CF-RAY": "99d799cc9c96ef75-LAX"
+    },
+    "cookies": {},
+    "elapsed": 2.054955
+  },
+  {
+    "test_number": 50,
+    "test_name": "Public endpoint: docs",
+    "method": "GET",
+    "url": "https://hammerfusion.com/gsmfusion_api/index.php",
+    "params": {
+      "action": "docs"
+    },
+    "headers": {},
+    "status_code": 200,
+    "response_text": "<?phpxml version=\"1.0\" encoding=\"utf-8\"?><error>Invalid User!</error>",
+    "response_headers": {
+      "Date": "Wed, 12 Nov 2025 17:03:08 GMT",
+      "Content-Type": "application/xml",
+      "Transfer-Encoding": "chunked",
+      "Connection": "keep-alive",
+      "Server": "cloudflare",
+      "Nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+      "Report-To": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=rS1WQcrBoMiOcrPXSkcxosYKeHFduyb%2FQyonFkvV%2FlEfIfbgZgXcTb%2FXdT4I4P5hoysKUoElJrAxg%2BrrilbtNu5jYebAGz5SpJQFGPNOfA%3D%3D\"}]}",
+      "cf-cache-status": "DYNAMIC",
+      "Content-Encoding": "gzip",
+      "CF-RAY": "99d799d97a0cfb84-LAX"
+    },
+    "cookies": {},
+    "elapsed": 0.313022
+  },
+  {
+    "test_number": 51,
+    "test_name": "Login action with credentials",
+    "method": "POST",
+    "url": "https://hammerfusion.com/gsmfusion_api/index.php",
+    "params": {
+      "action": "login",
+      "username": "scalmobile",
+      "api_key": "C0H6-T2S9-H9A0-G0T9-X3N7"
+    },
+    "headers": {},
+    "status_code": 200,
+    "response_text": "<?phpxml version=\"1.0\" encoding=\"utf-8\"?><error>Invalid User!</error>",
+    "response_headers": {
+      "Date": "Wed, 12 Nov 2025 17:03:08 GMT",
+      "Content-Type": "application/xml",
+      "Transfer-Encoding": "chunked",
+      "Connection": "keep-alive",
+      "Server": "cloudflare",
+      "Nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+      "Report-To": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=VSZ5SNWijczHsvTODew2SnkKCXJnNl9CPn5bWf3S5aNLgBbqHN%2F6LbqnNzCEoKL8AsTg3hHG8WJJS7N6LHdFFVh81Ma%2FnSZg%2Bt5ZI9RFPQ%3D%3D\"}]}",
+      "cf-cache-status": "DYNAMIC",
+      "Content-Encoding": "gzip",
+      "CF-RAY": "99d799db9f4cf7c7-LAX"
+    },
+    "cookies": {},
+    "elapsed": 0.647397
+  },
+  {
+    "test_number": 52,
+    "test_name": "Authenticate action",
+    "method": "POST",
+    "url": "https://hammerfusion.com/gsmfusion_api/index.php",
+    "params": {
+      "action": "authenticate",
+      "username": "scalmobile",
+      "api_key": "C0H6-T2S9-H9A0-G0T9-X3N7"
+    },
+    "headers": {},
+    "status_code": 200,
+    "response_text": "<?phpxml version=\"1.0\" encoding=\"utf-8\"?><error>Invalid User!</error>",
+    "response_headers": {
+      "Date": "Wed, 12 Nov 2025 17:03:08 GMT",
+      "Content-Type": "application/xml",
+      "Transfer-Encoding": "chunked",
+      "Connection": "keep-alive",
+      "Server": "cloudflare",
+      "Nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+      "Report-To": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=fPXSXrzM666KmeIGpFMMmJS8K56PdZVjXdVzMJN9c3nguKma5jvNIFjAHtrzcQVraEh5fm0bxto7mfyBoYAiRmrbhEfHNxcNoUoHNfZiLg%3D%3D\"}]}",
+      "cf-cache-status": "DYNAMIC",
+      "Content-Encoding": "gzip",
+      "CF-RAY": "99d799df9bdc3050-LAX"
+    },
+    "cookies": {},
+    "elapsed": 0.296665
+  },
+  {
+    "test_number": 53,
+    "test_name": "Password parameter instead of api_key",
+    "method": "POST",
+    "url": "https://hammerfusion.com/gsmfusion_api/index.php",
+    "params": {
+      "username": "scalmobile",
+      "password": "C0H6-T2S9-H9A0-G0T9-X3N7",
+      "action": "getServerList"
+    },
+    "headers": {},
+    "status_code": 200,
+    "response_text": "<?phpxml version=\"1.0\" encoding=\"utf-8\"?><error>Invalid User!</error>",
+    "response_headers": {
+      "Date": "Wed, 12 Nov 2025 17:03:09 GMT",
+      "Content-Type": "application/xml",
+      "Transfer-Encoding": "chunked",
+      "Connection": "keep-alive",
+      "Server": "cloudflare",
+      "Nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+      "Report-To": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=Sf7YI2r5BqbMy4oMnRIrQcKXfOj%2BFTWf2QdilMmR3asGORN%2BqSn5zmUQLohhSqailKcF5FoTN5gkKwIoGrxoqEkwJfhW%2FeUSgSrIQy03%2Fw%3D%3D\"}]}",
+      "cf-cache-status": "DYNAMIC",
+      "Content-Encoding": "gzip",
+      "CF-RAY": "99d799e1bc089a4f-LAX"
+    },
+    "cookies": {},
+    "elapsed": 0.32896
+  },
+  {
+    "test_number": 54,
+    "test_name": "Both password and api_key",
+    "method": "POST",
+    "url": "https://hammerfusion.com/gsmfusion_api/index.php",
+    "params": {
+      "username": "scalmobile",
+      "password": "C0H6-T2S9-H9A0-G0T9-X3N7",
+      "api_key": "C0H6-T2S9-H9A0-G0T9-X3N7",
+      "action": "getServerList"
+    },
+    "headers": {},
+    "status_code": 200,
+    "response_text": "<?phpxml version=\"1.0\" encoding=\"utf-8\"?><error>Invalid User!</error>",
+    "response_headers": {
+      "Date": "Wed, 12 Nov 2025 17:03:09 GMT",
+      "Content-Type": "application/xml",
+      "Transfer-Encoding": "chunked",
+      "Connection": "keep-alive",
+      "Server": "cloudflare",
+      "Nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+      "Report-To": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=ADwzNcVkcYKSW3W6JSqj1tFFuXHyNiekpNWCF7GrIE7m7DjDV%2BhYWriClfaRkv7rMzKsC2QxQgi5e07RoWbU4OnYPcxYuaVOWu1bDvV6Hw%3D%3D\"}]}",
+      "cf-cache-status": "DYNAMIC",
+      "Content-Encoding": "gzip",
+      "CF-RAY": "99d799e3ae32279a-LAX"
+    },
+    "cookies": {},
+    "elapsed": 0.310806
+  },
+  {
+    "test_number": 55,
+    "test_name": "Uppercase username",
+    "method": "POST",
+    "url": "https://hammerfusion.com/gsmfusion_api/index.php",
+    "params": {
+      "username": "SCALMOBILE",
+      "api_key": "C0H6-T2S9-H9A0-G0T9-X3N7",
+      "action": "getServerList"
+    },
+    "headers": {},
+    "status_code": 200,
+    "response_text": "<?phpxml version=\"1.0\" encoding=\"utf-8\"?><error>Invalid User!</error>",
+    "response_headers": {
+      "Date": "Wed, 12 Nov 2025 17:03:09 GMT",
+      "Content-Type": "application/xml",
+      "Transfer-Encoding": "chunked",
+      "Connection": "keep-alive",
+      "Server": "cloudflare",
+      "Nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+      "Report-To": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=RtUXqzj5YXivYGBAfXHohFFXY2RfZGYsNEvR8LxE6%2BH7NSIwXj7P8s%2B%2BEgfGcnmh0yXb%2BO2GZDFWxINh93AhTjUOaMS6py2wWr0dkPs%3D\"}]}",
+      "cf-cache-status": "DYNAMIC",
+      "Content-Encoding": "gzip",
+      "CF-RAY": "99d799e59f0af20b-LAX"
+    },
+    "cookies": {},
+    "elapsed": 0.29218
+  },
+  {
+    "test_number": 56,
+    "test_name": "User parameter instead of username",
+    "method": "POST",
+    "url": "https://hammerfusion.com/gsmfusion_api/index.php",
+    "params": {
+      "user": "scalmobile",
+      "api_key": "C0H6-T2S9-H9A0-G0T9-X3N7",
+      "action": "getServerList"
+    },
+    "headers": {},
+    "status_code": 200,
+    "response_text": "<?phpxml version=\"1.0\" encoding=\"utf-8\"?><error>Invalid User!</error>",
+    "response_headers": {
+      "Date": "Wed, 12 Nov 2025 17:03:10 GMT",
+      "Content-Type": "application/xml",
+      "Transfer-Encoding": "chunked",
+      "Connection": "keep-alive",
+      "Server": "cloudflare",
+      "Nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+      "Report-To": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=m4RCooEHoXMal2sUlkkwOBEAu%2BfEiGPKlavhXUcf1HnN9pCKh3o1Ji48vyW%2Fr0ClQcY9onrr5OpcVs8OlS6NJLsUEHo3X1Iqb14U1BRUaQ%3D%3D\"}]}",
+      "cf-cache-status": "DYNAMIC",
+      "Content-Encoding": "gzip",
+      "CF-RAY": "99d799e79c3a265a-LAX"
+    },
+    "cookies": {},
+    "elapsed": 0.29576
+  },
+  {
+    "test_number": 57,
+    "test_name": "client_id parameter",
+    "method": "POST",
+    "url": "https://hammerfusion.com/gsmfusion_api/index.php",
+    "params": {
+      "client_id": "scalmobile",
+      "api_key": "C0H6-T2S9-H9A0-G0T9-X3N7",
+      "action": "getServerList"
+    },
+    "headers": {},
+    "status_code": 200,
+    "response_text": "<?phpxml version=\"1.0\" encoding=\"utf-8\"?><error>Invalid User!</error>",
+    "response_headers": {
+      "Date": "Wed, 12 Nov 2025 17:03:10 GMT",
+      "Content-Type": "application/xml",
+      "Transfer-Encoding": "chunked",
+      "Connection": "keep-alive",
+      "Server": "cloudflare",
+      "Nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+      "Report-To": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=VA%2BMtzmyia5%2B7GLOOYaz%2FLQgweh6x0eI%2BIuHg6AM%2F5Z0yMD83BC%2FTeJy1dshOI1o%2BxbOkacYdq4CeWRl%2BqlhUhrxZPYtOXiT%2F9lKQNBUiw%3D%3D\"}]}",
+      "cf-cache-status": "DYNAMIC",
+      "Content-Encoding": "gzip",
+      "CF-RAY": "99d799e98b687bf8-LAX"
+    },
+    "cookies": {},
+    "elapsed": 0.303975
+  },
+  {
+    "test_number": 58,
+    "test_name": "OAuth-style parameters",
+    "method": "POST",
+    "url": "https://hammerfusion.com/gsmfusion_api/index.php",
+    "params": {
+      "client_id": "scalmobile",
+      "client_secret": "C0H6-T2S9-H9A0-G0T9-X3N7",
+      "grant_type": "client_credentials",
+      "action": "getServerList"
+    },
+    "headers": {},
+    "status_code": 200,
+    "response_text": "<?phpxml version=\"1.0\" encoding=\"utf-8\"?><error>Invalid User!</error>",
+    "response_headers": {
+      "Date": "Wed, 12 Nov 2025 17:03:10 GMT",
+      "Content-Type": "application/xml",
+      "Transfer-Encoding": "chunked",
+      "Connection": "keep-alive",
+      "Server": "cloudflare",
+      "Nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+      "Report-To": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=XPzvs7RD0UNbZU47oLLcwoDt0HWKjzG5ihiQWzOjxXQVwjc6lZO5SbRlZLULu2iBvsbTltOU0NiPcjW3b9W7xfzTANInM7AavoFR%2FxQ%3D\"}]}",
+      "cf-cache-status": "DYNAMIC",
+      "Content-Encoding": "gzip",
+      "CF-RAY": "99d799eb7a302939-LAX"
+    },
+    "cookies": {},
+    "elapsed": 0.306829
+  },
+  {
+    "test_number": 59,
+    "test_name": "Root path without index.php",
+    "method": "POST",
+    "url": "https://hammerfusion.com/gsmfusion_api/",
+    "params": {
+      "username": "scalmobile",
+      "api_key": "C0H6-T2S9-H9A0-G0T9-X3N7",
+      "action": "getServerList"
+    },
+    "headers": {},
+    "status_code": 200,
+    "response_text": "<?phpxml version=\"1.0\" encoding=\"utf-8\"?><error>Invalid User!</error>",
+    "response_headers": {
+      "Date": "Wed, 12 Nov 2025 17:03:11 GMT",
+      "Content-Type": "application/xml",
+      "Transfer-Encoding": "chunked",
+      "Connection": "keep-alive",
+      "Server": "cloudflare",
+      "Nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+      "Report-To": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=cn%2FUEVzYWv2sCau6ESXubyGWUOZlB4EutgwSXlfGOn596BQ0PsrRjrj72I9fbbytrwEovf5AH7F%2Fuc1O%2F7%2FtHcT14VYjfQPdf%2BDGR5fnuQ%3D%3D\"}]}",
+      "cf-cache-status": "DYNAMIC",
+      "Content-Encoding": "gzip",
+      "CF-RAY": "99d799ed9f5f56fd-LAX"
+    },
+    "cookies": {},
+    "elapsed": 0.322208
+  },
+  {
+    "test_number": 60,
+    "test_name": "HTTP instead of HTTPS",
+    "method": "POST",
+    "url": "http://hammerfusion.com/gsmfusion_api/index.php",
+    "params": {
+      "username": "scalmobile",
+      "api_key": "C0H6-T2S9-H9A0-G0T9-X3N7",
+      "action": "getServerList"
+    },
+    "headers": {},
+    "status_code": 200,
+    "response_text": "<?phpxml version=\"1.0\" encoding=\"utf-8\"?><error>Invalid User!</error>",
+    "response_headers": {
+      "Date": "Wed, 12 Nov 2025 17:03:11 GMT",
+      "Content-Type": "application/xml",
+      "Transfer-Encoding": "chunked",
+      "Connection": "keep-alive",
+      "Server": "cloudflare",
+      "Nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+      "Report-To": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=JPe0er4Orj%2FuqVCQuzt413a9T0kfZDRLmuiFe3OEnjlbLXMfwQZIKcvH%2BKb%2F0hJXkz3ljIOeSogFF2TgPnvSMbX2W91KrngRX6eOVCQrPA%3D%3D\"}]}",
+      "cf-cache-status": "DYNAMIC",
+      "Content-Encoding": "gzip",
+      "CF-RAY": "99d799f09bd02668-LAX"
+    },
+    "cookies": {},
+    "elapsed": 0.293265
+  }
+]

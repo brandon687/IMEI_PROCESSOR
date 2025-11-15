@@ -90,7 +90,6 @@ class IMEIDatabase:
             CREATE TABLE IF NOT EXISTS import_history (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 filename TEXT,
-                file_url TEXT,
                 rows_imported INTEGER,
                 rows_skipped INTEGER,
                 import_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
@@ -235,10 +234,6 @@ class IMEIDatabase:
         ''', (imei,))
 
         return [dict(row) for row in cursor.fetchall()]
-
-    def search_orders_by_imei(self, imei: str) -> List[Dict]:
-        """Alias for get_orders_by_imei() for backward compatibility"""
-        return self.get_orders_by_imei(imei)
 
     def get_recent_orders(self, limit: int = 50) -> List[Dict]:
         """Get recent orders"""
@@ -477,27 +472,6 @@ class IMEIDatabase:
                 writer.writerow(row_dict)
 
         return len(rows)
-
-    def record_batch_import(self, filename: str, rows_imported: int, rows_skipped: int, file_url: str = None):
-        """
-        Record batch import history
-
-        Args:
-            filename: Original filename
-            rows_imported: Number of rows successfully imported
-            rows_skipped: Number of rows skipped (duplicates/errors)
-            file_url: Optional Supabase Storage URL for the uploaded file
-        """
-        try:
-            cursor = self.conn.cursor()
-            cursor.execute('''
-                INSERT INTO import_history (filename, file_url, rows_imported, rows_skipped)
-                VALUES (?, ?, ?, ?)
-            ''', (filename, file_url, rows_imported, rows_skipped))
-            self.conn.commit()
-            logger.info(f"✓ Recorded batch import: {filename} ({rows_imported} imported, {rows_skipped} skipped)")
-        except Exception as e:
-            logger.error(f"Failed to record batch import: {e}")
 
     def close(self):
         """Close database connection"""
