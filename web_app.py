@@ -4,7 +4,7 @@ GSM Fusion Web Interface - PRODUCTION HARDENED
 Zero-downtime version with comprehensive error handling
 """
 
-from flask import Flask, render_template, request, jsonify, redirect, url_for, flash, session, send_file
+from flask import Flask, render_template, request, jsonify, redirect, url_for, flash, session, send_file, Response, stream_with_context
 from dotenv import load_dotenv
 from gsm_fusion_client import GSMFusionClient, GSMFusionAPIError
 from database import get_database
@@ -20,6 +20,7 @@ import openpyxl
 from datetime import datetime
 import threading
 import re
+import json
 
 # Setup logging
 logging.basicConfig(
@@ -109,34 +110,111 @@ def error_handler(f):
 
 @app.route('/health')
 def health_check():
-    """Health check endpoint for monitoring (simple)"""
+    """Comprehensive health check endpoint for monitoring and deployments"""
     health_status = {
         'status': 'healthy',
         'timestamp': time.time(),
-        'checks': {}
+        'version': os.environ.get('VERSION', 'unknown'),
+        'environment': os.environ.get('RAILWAY_ENVIRONMENT', 'local'),
+        'checks': {},
+        'metrics': {}
     }
 
     # Check database
     try:
         db = get_db_safe()
         if db:
-            health_status['checks']['database'] = 'connected'
+            # Test database connectivity with a simple query
+            conn = db.conn
+            cursor = conn.cursor()
+            cursor.execute("SELECT COUNT(*) FROM orders")
+            order_count = cursor.fetchone()[0]
+
+            health_status['checks']['database'] = {
+                'status': 'connected',
+                'orders': order_count
+            }
+            health_status['metrics']['total_orders'] = order_count
         else:
-            health_status['checks']['database'] = 'not_configured'
+            health_status['checks']['database'] = {
+                'status': 'not_configured',
+                'message': 'Database not initialized'
+            }
             health_status['status'] = 'degraded'
     except Exception as e:
-        health_status['checks']['database'] = f'error: {str(e)}'
+        health_status['checks']['database'] = {
+            'status': 'error',
+            'message': str(e)
+        }
         health_status['status'] = 'degraded'
 
-    # Check API (with cache)
+    # Check API client connectivity
     try:
+        start_time = time.time()
         services = get_services_cached(max_age=60)
-        health_status['checks']['api'] = f'ok ({len(services)} services)'
+        response_time = round((time.time() - start_time) * 1000, 2)
+
+        health_status['checks']['api'] = {
+            'status': 'ok',
+            'services': len(services),
+            'response_time_ms': response_time,
+            'cache_age_seconds': int(time.time() - _services_cache_time) if _services_cache else 0
+        }
+        health_status['metrics']['api_response_time_ms'] = response_time
+        health_status['metrics']['services_available'] = len(services)
+
+        if len(services) == 0:
+            health_status['status'] = 'degraded'
+            health_status['checks']['api']['status'] = 'warning'
+            health_status['checks']['api']['message'] = 'No services available'
+
     except Exception as e:
-        health_status['checks']['api'] = f'error: {str(e)}'
+        health_status['checks']['api'] = {
+            'status': 'error',
+            'message': str(e)
+        }
         health_status['status'] = 'degraded'
 
-    status_code = 200 if health_status['status'] == 'healthy' else 503
+    # Check cache
+    health_status['checks']['cache'] = {
+        'status': 'active' if _services_cache else 'empty',
+        'items': len(_services_cache) if _services_cache else 0,
+        'age_seconds': int(time.time() - _services_cache_time) if _services_cache else None
+    }
+
+    # Check environment variables
+    required_env_vars = ['GSM_FUSION_API_KEY', 'GSM_FUSION_USERNAME']
+    missing_vars = [var for var in required_env_vars if not os.environ.get(var)]
+
+    if missing_vars:
+        health_status['checks']['environment'] = {
+            'status': 'error',
+            'missing_variables': missing_vars
+        }
+        health_status['status'] = 'unhealthy'
+    else:
+        health_status['checks']['environment'] = {
+            'status': 'ok',
+            'api_key_length': len(os.environ.get('GSM_FUSION_API_KEY', '')),
+            'username': os.environ.get('GSM_FUSION_USERNAME', 'unknown')
+        }
+
+    # Overall status determination
+    check_statuses = [
+        check.get('status') if isinstance(check, dict) else check
+        for check in health_status['checks'].values()
+    ]
+
+    if 'error' in check_statuses or health_status['status'] == 'unhealthy':
+        health_status['status'] = 'unhealthy'
+        status_code = 503
+    elif 'warning' in check_statuses or health_status['status'] == 'degraded':
+        health_status['status'] = 'degraded'
+        status_code = 200  # Still operational
+    else:
+        health_status['status'] = 'healthy'
+        status_code = 200
+
     return jsonify(health_status), status_code
 
 
@@ -435,6 +513,187 @@ def submit():
         return render_template('error.html', error="Unable to load services"), 503
 
     return render_template('submit.html', services=services)
+
+
+@app.route('/submit-stream', methods=['POST'])
+def submit_stream():
+    """
+    Server-Sent Events endpoint for progressive IMEI order submission.
+
+    Streams real-time progress updates during order submission process:
+    - IMEI validation
+    - Duplicate checking
+    - API submission
+    - Database storage
+
+    Returns:
+        Response: Server-Sent Events stream with progress updates
+
+    Event Types:
+        - progress: Status update with percentage
+        - error: Error occurred, submission failed
+        - complete: Submission successful with results
+
+    Example Event:
+        data: {"type": "progress", "step": "validating", "message": "Validating IMEI...", "percent": 10}
+    """
+    def generate():
+        """Generator function for SSE stream"""
+        start_time = time.time()
+
+        try:
+            # Parse form data
+            imei_input = request.form.get('imei', '').strip()
+            service_id = request.form.get('service_id', '').strip()
+            force_recheck = request.form.get('force_recheck') == 'true'
+
+            logger.info(f"[SSE] Starting streaming submission for service_id={service_id}, force_recheck={force_recheck}")
+
+            # Step 1: Validation (10%)
+            yield f"data: {json.dumps({'type': 'progress', 'step': 'validating', 'message': 'Validating IMEI numbers...', 'percent': 10})}\n\n"
+            time.sleep(0.1)  # Small delay for visual feedback
+
+            if not imei_input or not service_id:
+                error_msg = 'IMEI and Service ID are required'
+                logger.error(f"[SSE] Validation failed: {error_msg}")
+                yield f"data: {json.dumps({'type': 'error', 'message': error_msg})}\n\n"
+                return
+
+            # Parse multiple IMEIs (one per line)
+            imei_lines = imei_input.strip().split('\n')
+            imeis = []
+            invalid_imeis = []
+
+            for line in imei_lines:
+                imei = line.strip()
+                if imei:
+                    # Validate IMEI (15 digits)
+                    if not imei.isdigit() or len(imei) != 15:
+                        invalid_imeis.append(imei)
+                        logger.warning(f"[SSE] Invalid IMEI format: {imei}")
+                        continue
+                    imeis.append(imei)
+
+            if invalid_imeis:
+                yield f"data: {json.dumps({'type': 'progress', 'step': 'validating', 'message': f'Skipped {len(invalid_imeis)} invalid IMEI(s)', 'percent': 20, 'warning': True})}\n\n"
+                time.sleep(0.2)
+
+            if not imeis:
+                error_msg = 'No valid IMEIs found. Each IMEI must be 15 digits.'
+                logger.error(f"[SSE] No valid IMEIs: {error_msg}")
+                yield f"data: {json.dumps({'type': 'error', 'message': error_msg})}\n\n"
+                return
+
+            logger.info(f"[SSE] Validated {len(imeis)} IMEI(s)")
+            yield f"data: {json.dumps({'type': 'progress', 'step': 'validated', 'message': f'Validated {len(imeis)} IMEI(s) successfully', 'percent': 25})}\n\n"
+            time.sleep(0.1)
+
+            # Step 2: Database duplicate check (30%)
+            yield f"data: {json.dumps({'type': 'progress', 'step': 'checking_duplicates', 'message': 'Checking for existing orders...', 'percent': 30})}\n\n"
+
+            db = get_db_safe()
+            existing_count = 0
+            if db and not force_recheck:
+                try:
+                    for imei in imeis:
+                        existing_orders = db.get_orders_by_imei(imei)
+                        if existing_orders:
+                            existing_count += 1
+
+                    if existing_count > 0:
+                        logger.info(f"[SSE] Found {existing_count} existing order(s) in database")
+                        yield f"data: {json.dumps({'type': 'progress', 'step': 'checking_duplicates', 'message': f'Found {existing_count} existing order(s) in database', 'percent': 35, 'warning': True})}\n\n"
+                        time.sleep(0.2)
+                except Exception as e:
+                    logger.warning(f"[SSE] Database duplicate check failed: {e}")
+
+            # Step 3: API submission (40-70%)
+            yield f"data: {json.dumps({'type': 'progress', 'step': 'submitting', 'message': f'Submitting {len(imeis)} IMEI(s) to GSM Fusion API...', 'percent': 40})}\n\n"
+
+            api_start = time.time()
+            client = GSMFusionClient(timeout=30)
+
+            try:
+                result = client.place_imei_order(imeis, service_id, force_recheck=force_recheck)
+                api_duration = time.time() - api_start
+
+                logger.info(f"[SSE] API call completed in {api_duration:.2f}s - {len(result['orders'])} successful, {len(result['duplicates'])} duplicates, {len(result['errors'])} errors")
+
+                yield f"data: {json.dumps({'type': 'progress', 'step': 'submitted', 'message': f'API responded in {api_duration:.2f}s', 'percent': 70})}\n\n"
+                time.sleep(0.1)
+
+            except Exception as e:
+                api_duration = time.time() - api_start
+                error_msg = f"API submission failed: {str(e)}"
+                logger.error(f"[SSE] {error_msg} (after {api_duration:.2f}s)")
+                yield f"data: {json.dumps({'type': 'error', 'message': error_msg, 'duration': api_duration})}\n\n"
+                client.close()
+                return
+            finally:
+                client.close()
+
+            # Step 4: Database storage (80%)
+            yield f"data: {json.dumps({'type': 'progress', 'step': 'saving', 'message': 'Saving orders to database...', 'percent': 80})}\n\n"
+
+            saved_count = 0
+            if db and result['orders']:
+                for order in result['orders']:
+                    try:
+                        db.insert_order({
+                            'order_id': order['id'],
+                            'imei': order['imei'],
+                            'service_id': service_id,
+                            'status': order.get('status', 'Pending')
+                        })
+                        saved_count += 1
+                    except Exception as e:
+                        logger.warning(f"[SSE] DB insert failed for order {order['id']}: {e}")
+
+                logger.info(f"[SSE] Saved {saved_count}/{len(result['orders'])} order(s) to database")
+
+            yield f"data: {json.dumps({'type': 'progress', 'step': 'saved', 'message': f'Saved {saved_count} order(s) to database', 'percent': 90})}\n\n"
+            time.sleep(0.1)
+
+            # Step 5: Complete (100%)
+            total_duration = time.time() - start_time
+            successful = len(result['orders'])
+            duplicates = len(result['duplicates'])
+            errors = len(result['errors'])
+
+            completion_data = {
+                'type': 'complete',
+                'message': f'Successfully submitted {successful} order(s)!',
+                'percent': 100,
+                'stats': {
+                    'successful': successful,
+                    'duplicates': duplicates,
+                    'errors': errors,
+                    'total_imeis': len(imeis),
+                    'duration': round(total_duration, 2),
+                    'api_duration': round(api_duration, 2)
+                },
+                'redirect': url_for('history')
+            }
+
+            logger.info(f"[SSE] Submission complete in {total_duration:.2f}s: {successful} successful, {duplicates} duplicates, {errors} errors")
+            yield f"data: {json.dumps(completion_data)}\n\n"
+
+        except Exception as e:
+            error_msg = f"Unexpected error: {str(e)}"
+            logger.error(f"[SSE] {error_msg}")
+            logger.error(traceback.format_exc())
+            yield f"data: {json.dumps({'type': 'error', 'message': error_msg})}\n\n"
+
+    # Return SSE response with proper headers
+    return Response(
+        stream_with_context(generate()),
+        mimetype='text/event-stream',
+        headers={
+            'Cache-Control': 'no-cache',
+            'X-Accel-Buffering': 'no',  # Disable nginx buffering
+            'Connection': 'keep-alive'
+        }
+    )
 
 
 @app.route('/batch', methods=['GET', 'POST'])
