@@ -282,11 +282,30 @@ class GSMFusionClient:
         logger.info("Fetching IMEI services list")
 
         xml_response = self._make_request('imeiservices')
+
+        # DEBUG: Log first 500 chars of XML response
+        logger.debug(f"Raw XML response (first 500 chars): {xml_response[:500]}")
+
         data = self._parse_xml_response(xml_response)
+
+        # DEBUG: Log the parsed data structure
+        logger.debug(f"Parsed data keys: {data.keys() if isinstance(data, dict) else 'NOT A DICT'}")
+        logger.debug(f"Parsed data type: {type(data)}")
+        if isinstance(data, dict) and len(data) < 5:
+            logger.debug(f"Full parsed data: {data}")
 
         services = []
         # Packages are directly under root, not nested
         packages = data.get('Package', [])
+
+        # Try alternative keys if Package is empty
+        if not packages:
+            # Check if data has nested structure
+            for key in ['services', 'Services', 'service', 'Service', 'PACKAGE', 'package']:
+                if key in data:
+                    packages = data[key]
+                    logger.info(f"Found packages under key '{key}'")
+                    break
 
         # Ensure packages is a list
         if not isinstance(packages, list):
