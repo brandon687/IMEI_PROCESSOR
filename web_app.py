@@ -924,10 +924,14 @@ def database_view():
         completed = len([o for o in orders if o.get('status', '').lower() == 'completed'])
         pending = len([o for o in orders if o.get('status', '').lower() in ['pending', 'in process']])
 
+        # Calculate total credits from all orders
+        total_credits = sum(float(o.get('credits', 0)) for o in orders if o.get('credits'))
+
         stats = {
             'total_orders': total_orders,
             'completed': completed,
-            'pending': pending
+            'pending': pending,
+            'total_credits': total_credits
         }
 
         return render_template('database.html',
