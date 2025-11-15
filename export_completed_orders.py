@@ -53,37 +53,49 @@ def export_completed_orders_to_csv(status_filter: str = 'Completed') -> Optional
 
         logger.info(f"Found {len(orders)} {status_filter} orders to export")
 
-        # Generate CSV in memory
+        # Generate CSV in memory with GSM Fusion format
         csv_buffer = io.StringIO()
 
-        # Define CSV columns
+        # GSM Fusion exact header format (tab-separated)
         fieldnames = [
-            'order_id',
-            'imei',
-            'imei2',
-            'service_name',
-            'service_id',
-            'status',
-            'carrier',
-            'model',
-            'simlock',
-            'fmi',
-            'credits',
-            'order_date',
-            'result_code',
-            'result_code_display',
-            'notes',
-            'created_at',
-            'updated_at'
+            'SERVICE',
+            'IMEI NO.',
+            'CREDITS',
+            'STATUS',
+            'CODE',
+            'IMEI 2',
+            'CARRIER',
+            'SIMLOCK',
+            'MODEL',
+            'FMI',
+            'ORDER DATE',
+            'NOTES'
         ]
 
-        writer = csv.DictWriter(csv_buffer, fieldnames=fieldnames)
+        writer = csv.DictWriter(csv_buffer, fieldnames=fieldnames, delimiter='\t')
         writer.writeheader()
 
-        # Write order data
+        # Write order data in GSM Fusion format
         for order in orders:
-            # Convert order dict to CSV row
-            row = {field: order.get(field, '') for field in fieldnames}
+            # Format credits with $ prefix
+            credits = order.get('credits', '')
+            if credits and str(credits).replace('.', '', 1).isdigit():
+                credits = f"${credits}"
+
+            row = {
+                'SERVICE': order.get('service_name', ''),
+                'IMEI NO.': order.get('imei', ''),
+                'CREDITS': credits,
+                'STATUS': order.get('status', ''),
+                'CODE': order.get('result_code_display', '') or order.get('result_code', ''),
+                'IMEI 2': order.get('imei2', ''),
+                'CARRIER': order.get('carrier', ''),
+                'SIMLOCK': order.get('simlock', ''),
+                'MODEL': order.get('model', ''),
+                'FMI': order.get('fmi', ''),
+                'ORDER DATE': order.get('order_date', ''),
+                'NOTES': order.get('notes', '')
+            }
             writer.writerow(row)
 
         # Get CSV bytes
@@ -144,37 +156,49 @@ def export_all_orders_to_csv(limit: int = 10000) -> Optional[str]:
 
         logger.info(f"Found {len(orders)} orders to export")
 
-        # Generate CSV in memory
+        # Generate CSV in memory with GSM Fusion format
         csv_buffer = io.StringIO()
 
-        # Define CSV columns
+        # GSM Fusion exact header format (tab-separated)
         fieldnames = [
-            'order_id',
-            'imei',
-            'imei2',
-            'service_name',
-            'service_id',
-            'status',
-            'carrier',
-            'model',
-            'simlock',
-            'fmi',
-            'credits',
-            'order_date',
-            'result_code',
-            'result_code_display',
-            'notes',
-            'created_at',
-            'updated_at'
+            'SERVICE',
+            'IMEI NO.',
+            'CREDITS',
+            'STATUS',
+            'CODE',
+            'IMEI 2',
+            'CARRIER',
+            'SIMLOCK',
+            'MODEL',
+            'FMI',
+            'ORDER DATE',
+            'NOTES'
         ]
 
-        writer = csv.DictWriter(csv_buffer, fieldnames=fieldnames)
+        writer = csv.DictWriter(csv_buffer, fieldnames=fieldnames, delimiter='\t')
         writer.writeheader()
 
-        # Write order data
+        # Write order data in GSM Fusion format
         for order in orders:
-            # Convert order dict to CSV row
-            row = {field: order.get(field, '') for field in fieldnames}
+            # Format credits with $ prefix
+            credits = order.get('credits', '')
+            if credits and str(credits).replace('.', '', 1).isdigit():
+                credits = f"${credits}"
+
+            row = {
+                'SERVICE': order.get('service_name', ''),
+                'IMEI NO.': order.get('imei', ''),
+                'CREDITS': credits,
+                'STATUS': order.get('status', ''),
+                'CODE': order.get('result_code_display', '') or order.get('result_code', ''),
+                'IMEI 2': order.get('imei2', ''),
+                'CARRIER': order.get('carrier', ''),
+                'SIMLOCK': order.get('simlock', ''),
+                'MODEL': order.get('model', ''),
+                'FMI': order.get('fmi', ''),
+                'ORDER DATE': order.get('order_date', ''),
+                'NOTES': order.get('notes', '')
+            }
             writer.writerow(row)
 
         # Get CSV bytes

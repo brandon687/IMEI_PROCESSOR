@@ -1167,20 +1167,37 @@ def download_csv():
             flash('No orders to export', 'warning')
             return redirect(url_for('database_view'))
 
-        # Generate CSV in memory
+        # Generate CSV in memory with GSM Fusion format
         output = io.StringIO()
         fieldnames = [
-            'order_id', 'imei', 'imei2', 'service_name', 'service_id',
-            'status', 'carrier', 'model', 'simlock', 'fmi', 'credits',
-            'order_date', 'result_code', 'result_code_display', 'notes',
-            'created_at', 'updated_at'
+            'SERVICE', 'IMEI NO.', 'CREDITS', 'STATUS', 'CODE',
+            'IMEI 2', 'CARRIER', 'SIMLOCK', 'MODEL', 'FMI',
+            'ORDER DATE', 'NOTES'
         ]
 
-        writer = csv.DictWriter(output, fieldnames=fieldnames)
+        writer = csv.DictWriter(output, fieldnames=fieldnames, delimiter='\t')
         writer.writeheader()
 
         for order in orders:
-            row = {field: order.get(field, '') for field in fieldnames}
+            # Format credits with $ prefix
+            credits = order.get('credits', '')
+            if credits and str(credits).replace('.', '', 1).isdigit():
+                credits = f"${credits}"
+
+            row = {
+                'SERVICE': order.get('service_name', ''),
+                'IMEI NO.': order.get('imei', ''),
+                'CREDITS': credits,
+                'STATUS': order.get('status', ''),
+                'CODE': order.get('result_code_display', '') or order.get('result_code', ''),
+                'IMEI 2': order.get('imei2', ''),
+                'CARRIER': order.get('carrier', ''),
+                'SIMLOCK': order.get('simlock', ''),
+                'MODEL': order.get('model', ''),
+                'FMI': order.get('fmi', ''),
+                'ORDER DATE': order.get('order_date', ''),
+                'NOTES': order.get('notes', '')
+            }
             writer.writerow(row)
 
         # Create response with CSV
@@ -1224,20 +1241,37 @@ def download_completed_csv():
             flash('No completed orders to export', 'warning')
             return redirect(url_for('database_view'))
 
-        # Generate CSV in memory
+        # Generate CSV in memory with GSM Fusion format
         output = io.StringIO()
         fieldnames = [
-            'order_id', 'imei', 'imei2', 'service_name', 'service_id',
-            'status', 'carrier', 'model', 'simlock', 'fmi', 'credits',
-            'order_date', 'result_code', 'result_code_display', 'notes',
-            'created_at', 'updated_at'
+            'SERVICE', 'IMEI NO.', 'CREDITS', 'STATUS', 'CODE',
+            'IMEI 2', 'CARRIER', 'SIMLOCK', 'MODEL', 'FMI',
+            'ORDER DATE', 'NOTES'
         ]
 
-        writer = csv.DictWriter(output, fieldnames=fieldnames)
+        writer = csv.DictWriter(output, fieldnames=fieldnames, delimiter='\t')
         writer.writeheader()
 
         for order in orders:
-            row = {field: order.get(field, '') for field in fieldnames}
+            # Format credits with $ prefix
+            credits = order.get('credits', '')
+            if credits and str(credits).replace('.', '', 1).isdigit():
+                credits = f"${credits}"
+
+            row = {
+                'SERVICE': order.get('service_name', ''),
+                'IMEI NO.': order.get('imei', ''),
+                'CREDITS': credits,
+                'STATUS': order.get('status', ''),
+                'CODE': order.get('result_code_display', '') or order.get('result_code', ''),
+                'IMEI 2': order.get('imei2', ''),
+                'CARRIER': order.get('carrier', ''),
+                'SIMLOCK': order.get('simlock', ''),
+                'MODEL': order.get('model', ''),
+                'FMI': order.get('fmi', ''),
+                'ORDER DATE': order.get('order_date', ''),
+                'NOTES': order.get('notes', '')
+            }
             writer.writerow(row)
 
         # Create response with CSV
