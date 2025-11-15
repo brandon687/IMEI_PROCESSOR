@@ -1045,16 +1045,44 @@ def database_view():
         # Calculate total credits from all orders
         total_credits = sum(float(o.get('credits', 0)) for o in orders if o.get('credits'))
 
+        # Count orders today
+        from datetime import datetime, timedelta
+        today = datetime.now().date()
+        orders_today = 0
+        for o in orders:
+            order_date = o.get('order_date') or o.get('created_at', '')
+            if order_date:
+                try:
+                    # Parse date (handles both datetime and date strings)
+                    if isinstance(order_date, str):
+                        order_date_obj = datetime.strptime(order_date.split()[0], '%Y-%m-%d').date()
+                    else:
+                        order_date_obj = order_date.date() if hasattr(order_date, 'date') else order_date
+
+                    if order_date_obj == today:
+                        orders_today += 1
+                except:
+                    pass
+
+        # Group by status
+        by_status = {}
+        for o in orders:
+            status = o.get('status', 'Unknown')
+            by_status[status] = by_status.get(status, 0) + 1
+
         stats = {
             'total_orders': total_orders,
             'completed': completed,
             'pending': pending,
-            'total_credits': total_credits
+            'total_credits': total_credits,
+            'orders_today': orders_today,
+            'by_status': by_status
         }
 
         return render_template('database.html',
                              stats=stats,
-                             orders=orders)
+                             orders=orders,
+                             recent_orders=orders[:20])
     except Exception as e:
         logger.error(f"Database view error: {e}")
         logger.error(traceback.format_exc())
