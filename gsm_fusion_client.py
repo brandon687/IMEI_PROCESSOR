@@ -168,6 +168,7 @@ class GSMFusionClient:
 
         try:
             logger.debug(f"Making request to {url} with action: {action}")
+            logger.debug(f"Request parameters: {parameters}")
 
             import time
             http_start = time.time()
@@ -180,7 +181,16 @@ class GSMFusionClient:
 
             response.raise_for_status()
 
+            # CRITICAL DEBUG: Log response details
             logger.info(f"HTTP request for {action} completed in {http_duration:.2f}s")
+            logger.info(f"Response status code: {response.status_code}")
+            logger.info(f"Response headers: {dict(response.headers)}")
+            logger.info(f"Response length: {len(response.text)} bytes")
+            logger.info(f"Response content (first 1000 chars): {response.text[:1000]}")
+
+            if len(response.text) > 1000:
+                logger.info(f"Response content (last 500 chars): ...{response.text[-500:]}")
+
             return response.text
 
         except requests.exceptions.Timeout:
@@ -298,18 +308,26 @@ class GSMFusionClient:
         # Packages are directly under root, not nested
         packages = data.get('Package', [])
 
+        logger.info(f"Initial packages extraction: found {len(packages) if isinstance(packages, list) else 1 if packages else 0} items")
+
         # Try alternative keys if Package is empty
         if not packages:
+            logger.warning("No 'Package' key found in response, trying alternative keys...")
+            logger.info(f"Available keys in response: {list(data.keys())}")
+
             # Check if data has nested structure
             for key in ['services', 'Services', 'service', 'Service', 'PACKAGE', 'package']:
                 if key in data:
                     packages = data[key]
-                    logger.info(f"Found packages under key '{key}'")
+                    logger.info(f"✓ Found packages under key '{key}': {len(packages) if isinstance(packages, list) else 1 if packages else 0} items")
                     break
+            else:
+                logger.error(f"❌ NO SERVICES FOUND! Checked all keys. Response structure: {data}")
 
         # Ensure packages is a list
         if not isinstance(packages, list):
-            packages = [packages]
+            packages = [packages] if packages else []
+            logger.debug(f"Converted single package to list: {len(packages)} items")
 
         for pkg in packages:
             # Skip non-dictionary packages (malformed data)

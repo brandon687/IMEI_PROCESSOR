@@ -133,6 +133,61 @@ def health_check():
     return jsonify(health_status), status_code
 
 
+@app.route('/api/debug')
+def api_debug():
+    """Deep diagnostic endpoint - shows EXACT API response"""
+    if not os.environ.get('ENABLE_DEBUG_ENDPOINT'):
+        return jsonify({'error': 'Debug endpoint disabled. Set ENABLE_DEBUG_ENDPOINT=1 to enable'}), 403
+
+    diagnostic = {
+        'timestamp': time.time(),
+        'environment': {
+            'API_KEY_SET': bool(os.environ.get('GSM_FUSION_API_KEY')),
+            'API_KEY_LENGTH': len(os.environ.get('GSM_FUSION_API_KEY', '')),
+            'USERNAME': os.environ.get('GSM_FUSION_USERNAME', 'NOT_SET'),
+            'BASE_URL': os.environ.get('GSM_FUSION_BASE_URL', 'http://hammerfusion.com'),
+        },
+        'api_test': {}
+    }
+
+    try:
+        logger.info("=== DIAGNOSTIC API TEST STARTING ===")
+        client = GSMFusionClient(timeout=10)
+
+        # Make raw request
+        xml_response = client._make_request('imeiservices')
+
+        diagnostic['api_test'] = {
+            'success': True,
+            'raw_xml_length': len(xml_response),
+            'raw_xml_first_500': xml_response[:500],
+            'raw_xml_last_500': xml_response[-500:] if len(xml_response) > 500 else xml_response,
+            'full_xml': xml_response  # FULL response for analysis
+        }
+
+        # Try parsing
+        try:
+            parsed = client._parse_xml_response(xml_response)
+            diagnostic['api_test']['parsed_successfully'] = True
+            diagnostic['api_test']['parsed_type'] = str(type(parsed))
+            diagnostic['api_test']['parsed_keys'] = list(parsed.keys()) if isinstance(parsed, dict) else 'NOT A DICT'
+            diagnostic['api_test']['parsed_data'] = str(parsed)[:1000]  # First 1000 chars
+        except Exception as parse_error:
+            diagnostic['api_test']['parsed_successfully'] = False
+            diagnostic['api_test']['parse_error'] = str(parse_error)
+
+        client.close()
+
+    except Exception as e:
+        diagnostic['api_test'] = {
+            'success': False,
+            'error': str(e),
+            'error_type': type(e).__name__
+        }
+
+    return jsonify(diagnostic)
+
+
 @app.route('/api/status')
 def api_status():
     """Real-time API status for status bar - lightweight and fast"""
