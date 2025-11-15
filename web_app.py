@@ -94,6 +94,15 @@ def get_services_cached(max_age=300):
         return []
 
 
+def get_service_name_by_id(service_id):
+    """Get service name from service_id using cached services"""
+    services = get_services_cached()
+    for service in services:
+        if str(service.get('id')) == str(service_id):
+            return service.get('name', '')
+    return ''
+
+
 def error_handler(f):
     """Decorator to catch all errors and return error page"""
     @wraps(f)
@@ -471,12 +480,14 @@ def submit():
             # Store in database
             db = get_db_safe()
             if db and result['orders']:
+                service_name = get_service_name_by_id(service_id)
                 for order in result['orders']:
                     try:
                         db.insert_order({
                             'order_id': order['id'],
                             'imei': order['imei'],
                             'service_id': service_id,
+                            'service_name': service_name,
                             'status': order.get('status', 'Pending')
                         })
                     except Exception as e:
@@ -782,12 +793,14 @@ def batch_upload():
             # Store in database
             db = get_db_safe()
             if db and result['orders']:
+                service_name = get_service_name_by_id(service_id)
                 for order in result['orders']:
                     try:
                         db.insert_order({
                             'order_id': order['id'],
                             'imei': order['imei'],
                             'service_id': service_id,
+                            'service_name': service_name,
                             'status': order.get('status', 'Pending')
                         })
                     except Exception as e:
