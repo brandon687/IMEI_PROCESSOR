@@ -481,8 +481,10 @@ def submit():
             db = get_db_safe()
             if db and result['orders']:
                 service_name = get_service_name_by_id(service_id)
-                for order in result['orders']:
+                logger.info(f"Storing {len(result['orders'])} orders in database")
+                for i, order in enumerate(result['orders'], 1):
                     try:
+                        logger.info(f"Inserting order {i}/{len(result['orders'])}: order_id={order['id']}, imei={order['imei']}")
                         db.insert_order({
                             'order_id': order['id'],
                             'imei': order['imei'],
@@ -490,8 +492,11 @@ def submit():
                             'service_name': service_name,
                             'status': order.get('status', 'Pending')
                         })
+                        logger.info(f"✓ Successfully inserted order {order['id']}")
                     except Exception as e:
-                        logger.warning(f"DB insert failed: {e}")
+                        logger.error(f"❌ DB insert failed for order {order.get('id', 'unknown')}: {e}")
+                        import traceback
+                        logger.error(traceback.format_exc())
 
             # Show summary
             successful = len(result['orders'])
@@ -794,8 +799,10 @@ def batch_upload():
             db = get_db_safe()
             if db and result['orders']:
                 service_name = get_service_name_by_id(service_id)
-                for order in result['orders']:
+                logger.info(f"Storing {len(result['orders'])} orders in database")
+                for i, order in enumerate(result['orders'], 1):
                     try:
+                        logger.info(f"Inserting order {i}/{len(result['orders'])}: order_id={order['id']}, imei={order['imei']}")
                         db.insert_order({
                             'order_id': order['id'],
                             'imei': order['imei'],
@@ -803,8 +810,11 @@ def batch_upload():
                             'service_name': service_name,
                             'status': order.get('status', 'Pending')
                         })
+                        logger.info(f"✓ Successfully inserted order {order['id']}")
                     except Exception as e:
-                        logger.warning(f"DB insert failed: {e}")
+                        logger.error(f"❌ DB insert failed for order {order.get('id', 'unknown')}: {e}")
+                        import traceback
+                        logger.error(traceback.format_exc())
 
             successful = len(result['orders'])
             duplicates = len(result['duplicates'])
