@@ -199,7 +199,7 @@ class GSMFusionClient:
             xml_string: XML response string
 
         Returns:
-            Parsed response as dictionary
+            Parsed response as dictionary (ALWAYS returns dict, never string)
 
         Raises:
             GSMFusionAPIError: If XML parsing fails or contains errors
@@ -214,7 +214,18 @@ class GSMFusionClient:
                 raise GSMFusionAPIError(f"API Error: {error_elem.text}")
 
             # Convert XML to dict
-            return self._xml_to_dict(root)
+            result = self._xml_to_dict(root)
+
+            # CRITICAL: _xml_to_dict might return a string for leaf nodes
+            # We MUST always return a dict from this method
+            if isinstance(result, str):
+                # Wrap string result in dict with root element name
+                return {root.tag: result}
+            elif not isinstance(result, dict):
+                # Safety: any other non-dict type, wrap it
+                return {root.tag: result}
+
+            return result
 
         except ET.ParseError as e:
             logger.error(f"XML parsing failed: {str(e)}")
