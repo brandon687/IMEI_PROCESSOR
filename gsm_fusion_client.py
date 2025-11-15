@@ -215,6 +215,12 @@ class GSMFusionClient:
             GSMFusionAPIError: If XML parsing fails or contains errors
         """
         try:
+            # FIX: API sometimes returns malformed XML with <?phpxml instead of <?xml
+            # This is a critical bug fix for the 0 services issue
+            if xml_string.startswith('<?phpxml'):
+                logger.warning("Detected malformed XML with '<?phpxml' declaration - fixing automatically")
+                xml_string = xml_string.replace('<?phpxml', '<?xml', 1)
+
             root = ET.fromstring(xml_string)
 
             # Check for errors in response
