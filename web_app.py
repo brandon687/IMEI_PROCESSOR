@@ -34,7 +34,12 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 # Load environment variables
-load_dotenv()
+# Note: Railway injects env vars at process level, load_dotenv should not override them
+load_dotenv(override=False)
+
+# Log environment status for diagnostics
+logger.info(f"Environment: SUPABASE_URL={'SET' if os.getenv('SUPABASE_URL') else 'NOT SET'}")
+logger.info(f"Environment: SUPABASE_KEY={'SET' if os.getenv('SUPABASE_KEY') else 'NOT SET'}")
 
 app = Flask(__name__)
 app.secret_key = os.urandom(24)
