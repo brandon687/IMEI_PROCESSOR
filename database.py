@@ -56,7 +56,13 @@ class IMEIDatabase:
                 notes TEXT,
                 raw_response TEXT,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                serial_number TEXT,
+                meid TEXT,
+                gsma_status TEXT,
+                purchase_date TEXT,
+                applecare TEXT,
+                tether_policy TEXT
             )
         ''')
 
@@ -67,6 +73,24 @@ class IMEIDatabase:
         except sqlite3.OperationalError as e:
             if 'duplicate column name' not in str(e).lower():
                 logger.warning(f"Could not add result_code_display column: {e}")
+
+        # Add parsed data columns if they don't exist (migration for parser integration)
+        parsed_columns = [
+            'serial_number',
+            'meid',
+            'gsma_status',
+            'purchase_date',
+            'applecare',
+            'tether_policy'
+        ]
+
+        for column in parsed_columns:
+            try:
+                cursor.execute(f'ALTER TABLE orders ADD COLUMN {column} TEXT')
+                logger.info(f"Added {column} column to orders table")
+            except sqlite3.OperationalError as e:
+                if 'duplicate column name' not in str(e).lower():
+                    logger.warning(f"Could not add {column} column: {e}")
 
         # Index for fast lookups
         cursor.execute('''
@@ -175,6 +199,12 @@ class IMEIDatabase:
                         imei2 = ?,
                         result_code = ?,
                         result_code_display = ?,
+                        serial_number = ?,
+                        meid = ?,
+                        gsma_status = ?,
+                        purchase_date = ?,
+                        applecare = ?,
+                        tether_policy = ?,
                         updated_at = CURRENT_TIMESTAMP
                     WHERE order_id = ?
                 ''', (
@@ -187,6 +217,12 @@ class IMEIDatabase:
                     result_data.get('imei2'),
                     result_data.get('result_code') or code,
                     result_data.get('result_code_display') or code_display,
+                    result_data.get('serial_number'),
+                    result_data.get('meid'),
+                    result_data.get('gsma_status'),
+                    result_data.get('purchase_date'),
+                    result_data.get('applecare'),
+                    result_data.get('tether_policy'),
                     order_id
                 ))
             else:

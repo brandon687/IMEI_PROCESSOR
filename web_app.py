@@ -11,6 +11,7 @@ from database import get_database
 from production_submission_system import ProductionSubmissionSystem, SubmissionResult
 from supabase_storage import get_storage
 from export_completed_orders import export_completed_orders_to_csv, export_all_orders_to_csv, list_exported_csvs
+from imei_data_parser import IMEIDataParser
 import os
 import logging
 import traceback
@@ -975,6 +976,214 @@ def sync_orders():
         logger.error(traceback.format_exc())
         flash(f'Sync failed: {str(e)}', 'error')
         return redirect(url_for('history'))
+
+
+def sync_and_parse_orders(parse_enabled: bool = True) -> Dict:
+    """
+    Helper function to sync pending orders with API and parse result codes
+
+    Args:
+        parse_enabled: Whether to parse the result_code field (default: True)
+
+    Returns:
+        Dictionary with detailed stats and results
+    """
+    start_time = time.time()
+
+    result = {
+        'success': False,
+        'stats': {
+            'total_pending': 0,
+            'synced': 0,
+            'completed': 0,
+            'parsed': 0,
+            'parse_failures': 0
+        },
+        'sample_parsed': [],
+        'errors': [],
+        'duration': 0
+    }
+
+    try:
+        logger.info("=== MANUAL SYNC & PARSE STARTED ===")
+        logger.info(f"Parse enabled: {parse_enabled}")
+
+        # Get database
+        db = get_db_safe()
+        if not db:
+            result['errors'].append('Database not available')
+            return result
+
+        # Get all pending orders
+        conn = db.conn
+        cursor = conn.cursor()
+        cursor.execute("SELECT order_id FROM orders WHERE status IN ('Pending', 'In Process', '1', '4')")
+        pending_orders = cursor.fetchall()
+
+        result['stats']['total_pending'] = len(pending_orders)
+        logger.info(f"Found {len(pending_orders)} pending orders to sync")
+
+        if not pending_orders:
+            result['success'] = True
+            result['duration'] = time.time() - start_time
+            return result
+
+        # Collect order IDs
+        order_ids = [row[0] for row in pending_orders]
+
+        # Initialize parser if enabled
+        parser = IMEIDataParser() if parse_enabled else None
+
+        # Fetch status from API (batch)
+        logger.info("Calling GSM Fusion API to sync orders...")
+        client = GSMFusionClient(timeout=60)
+
+        try:
+            # API accepts comma-separated order IDs for batch lookup
+            order_ids_str = ','.join(order_ids)
+            api_start = time.time()
+            orders = client.get_imei_orders(order_ids_str)
+            api_duration = time.time() - api_start
+
+            logger.info(f"API returned {len(orders)} orders in {api_duration:.2f}s")
+            result['stats']['synced'] = len(orders)
+
+            # Update database with new status and parse CODE field
+            for i, order in enumerate(orders, 1):
+                try:
+                    logger.info(f"Processing order {i}/{len(orders)}: {order.id}")
+
+                    # Parse the result_code if enabled and order is completed
+                    parsed_data = {}
+                    if parse_enabled and order.code and order.status == 'Completed':
+                        logger.info(f"Parsing CODE field for order {order.id}")
+                        logger.debug(f"Raw CODE: {order.code[:200]}...")
+
+                        try:
+                            parsed = parser.parse(order.code)
+                            parsed_dict = parsed.to_dict()
+
+                            # Map parser field names to database field names
+                            parsed_data = {
+                                'carrier': parsed_dict.get('carrier'),
+                                'model': parsed_dict.get('model'),
+                                'simlock': parsed_dict.get('simlock'),
+                                'fmi': parsed_dict.get('find_my_iphone'),
+                                'imei2': parsed_dict.get('imei2_number'),
+                                'serial_number': parsed_dict.get('serial_number'),
+                                'meid': parsed_dict.get('meid_number'),
+                                'gsma_status': parsed_dict.get('current_gsma_status'),
+                                'purchase_date': parsed_dict.get('estimated_purchase_date'),
+                                'applecare': parsed_dict.get('applecare_eligible'),
+                                'tether_policy': parsed_dict.get('next_tether_policy')
+                            }
+
+                            # Remove None values
+                            parsed_data = {k: v for k, v in parsed_data.items() if v is not None}
+
+                            logger.info(f"✓ Parsed {len(parsed_data)} fields: {list(parsed_data.keys())}")
+                            result['stats']['parsed'] += 1
+
+                            # Add to sample (first 3)
+                            if len(result['sample_parsed']) < 3:
+                                result['sample_parsed'].append({
+                                    'order_id': order.id,
+                                    'imei': order.imei,
+                                    'parsed_fields': parsed_data
+                                })
+
+                        except Exception as parse_error:
+                            logger.warning(f"Failed to parse CODE for order {order.id}: {parse_error}")
+                            result['stats']['parse_failures'] += 1
+
+                    # Update database
+                    if parsed_data:
+                        # Update with parsed data
+                        db.update_order_status(
+                            order_id=order.id,
+                            status=order.status,
+                            code=order.code,
+                            code_display=order.result_code_display,
+                            service_name=order.package,
+                            result_data=parsed_data
+                        )
+                        logger.info(f"✓ Updated order {order.id} with parsed data")
+                    else:
+                        # Simple status update
+                        db.update_order_status(
+                            order_id=order.id,
+                            status=order.status,
+                            code=order.code,
+                            code_display=order.result_code_display,
+                            service_name=order.package
+                        )
+                        logger.info(f"✓ Updated order {order.id} status")
+
+                    # Count completed orders
+                    if order.status == 'Completed':
+                        result['stats']['completed'] += 1
+
+                except Exception as e:
+                    error_msg = f"Failed to update order {order.id}: {str(e)}"
+                    logger.error(error_msg)
+                    result['errors'].append(error_msg)
+
+            result['success'] = True
+            logger.info(f"✓ Manual sync completed: {result['stats']['synced']} synced, {result['stats']['parsed']} parsed")
+
+        except Exception as e:
+            error_msg = f"API sync failed: {str(e)}"
+            logger.error(error_msg)
+            logger.error(traceback.format_exc())
+            result['errors'].append(error_msg)
+        finally:
+            client.close()
+
+    except Exception as e:
+        error_msg = f"Sync error: {str(e)}"
+        logger.error(error_msg)
+        logger.error(traceback.format_exc())
+        result['errors'].append(error_msg)
+
+    result['duration'] = round(time.time() - start_time, 2)
+    logger.info(f"=== MANUAL SYNC & PARSE FINISHED in {result['duration']}s ===")
+
+    return result
+
+
+@app.route('/manual-sync', methods=['POST'])
+def manual_sync():
+    """
+    Manual sync endpoint with integrated IMEI data parser
+
+    Accepts optional 'parse' parameter (default: true)
+    Returns detailed results with debugging info
+    """
+    logger.info("MANUAL-SYNC route called")
+
+    try:
+        # Get parse parameter (default: true)
+        parse_enabled = request.form.get('parse', 'true').lower() in ['true', '1', 'yes']
+
+        logger.info(f"Starting manual sync with parse={parse_enabled}")
+
+        # Call helper function
+        result = sync_and_parse_orders(parse_enabled=parse_enabled)
+
+        # Return JSON response
+        return jsonify(result), 200 if result['success'] else 500
+
+    except Exception as e:
+        logger.error(f"Manual sync error: {e}")
+        logger.error(traceback.format_exc())
+        return jsonify({
+            'success': False,
+            'error': str(e),
+            'stats': {},
+            'sample_parsed': [],
+            'errors': [str(e)],
+            'duration': 0
+        }), 500
 
 
 @app.route('/status/<order_id>')
