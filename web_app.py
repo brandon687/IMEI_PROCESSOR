@@ -1226,33 +1226,36 @@ def db_diagnostic():
         db = get_db_safe()
         if db:
             diagnostic['database']['connected'] = True
-            diagnostic['database']['using_supabase'] = db.use_supabase
-            diagnostic['database']['type'] = 'Supabase' if db.use_supabase else 'SQLite'
+            diagnostic['database']['using_postgres'] = getattr(db, 'use_postgres', False)
+            diagnostic['database']['postgres_type'] = getattr(db, 'postgres_type', None)
 
-            # Try to count orders
+            # Determine database type
+            if getattr(db, 'use_postgres', False):
+                db_type = f"PostgreSQL ({getattr(db, 'postgres_type', 'unknown')})"
+            else:
+                db_type = 'SQLite'
+
+            diagnostic['database']['type'] = db_type
+
+            # Try to count orders (works with both PostgreSQL and SQLite)
             try:
-                if db.use_supabase:
-                    response = db.supabase_client.table('orders').select('count', count='exact').execute()
-                    diagnostic['orders']['total'] = response.count
+                # Use universal methods that work with all database types
+                diagnostic['orders']['total'] = db.get_order_count()
 
-                    # Get pending orders
-                    pending_response = db.supabase_client.table('orders').select('count', count='exact').in_('status', ['Pending', 'In Process', '1', '4']).execute()
-                    diagnostic['orders']['pending'] = pending_response.count
-
-                    # Get recent orders
-                    recent = db.supabase_client.table('orders').select('order_id', 'imei', 'status').order('created_at', desc=True).limit(5).execute()
-                    diagnostic['orders']['recent_5'] = recent.data
-                else:
-                    cursor = db.conn.cursor()
-                    cursor.execute('SELECT COUNT(*) FROM orders')
-                    diagnostic['orders']['total'] = cursor.fetchone()[0]
-
+                # Get pending orders count
+                cursor = db.conn.cursor()
+                if db.use_postgres:
                     cursor.execute("SELECT COUNT(*) FROM orders WHERE status IN ('Pending', 'In Process', '1', '4')")
-                    diagnostic['orders']['pending'] = cursor.fetchone()[0]
+                else:
+                    cursor.execute("SELECT COUNT(*) FROM orders WHERE status IN ('Pending', 'In Process', '1', '4')")
+                diagnostic['orders']['pending'] = cursor.fetchone()[0]
 
-                    cursor.execute('SELECT order_id, imei, status FROM orders ORDER BY created_at DESC LIMIT 5')
-                    rows = cursor.fetchall()
-                    diagnostic['orders']['recent_5'] = [{'order_id': r[0], 'imei': r[1], 'status': r[2]} for r in rows]
+                # Get recent orders
+                recent_orders = db.get_recent_orders(limit=5)
+                diagnostic['orders']['recent_5'] = [
+                    {'order_id': o.get('order_id'), 'imei': o.get('imei'), 'status': o.get('status')}
+                    for o in recent_orders
+                ]
 
             except Exception as e:
                 diagnostic['orders']['error'] = str(e)
