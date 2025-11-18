@@ -1737,3 +1737,65 @@ if __name__ == '__main__':
 
     logger.info(f"Starting Flask on port {port}")
     app.run(host='0.0.0.0', port=port, debug=False)
+
+
+@app.route('/api/test-update/<order_id>')
+def test_update(order_id):
+    """Test update_order_status with logging capture"""
+    import io
+    import logging
+    
+    # Capture logging output
+    log_capture = io.StringIO()
+    handler = logging.StreamHandler(log_capture)
+    handler.setLevel(logging.INFO)
+    logger.addHandler(handler)
+    
+    try:
+        db = get_db_safe()
+        if not db:
+            return jsonify({'error': 'Database not available'}), 500
+        
+        # Attempt update
+        success = db.update_order_status(
+            order_id=order_id,
+            status='Completed',
+            result_code='TEST_CODE_' + order_id,
+            result_code_display='TEST DISPLAY',
+            result_data={
+                'carrier': 'TEST_CARRIER_' + order_id,
+                'model': 'TEST_MODEL'
+            }
+        )
+        
+        # Get log output
+        log_output = log_capture.getvalue()
+        
+        # Verify in database
+        cursor = db.conn.cursor()
+        if db.use_postgres:
+            cursor.execute("SELECT status, result_code, carrier FROM orders WHERE order_id = %s", (order_id,))
+        else:
+            cursor.execute("SELECT status, result_code, carrier FROM orders WHERE order_id = ?", (order_id,))
+        
+        row = cursor.fetchone()
+        
+        result = {
+            'success': success,
+            'database_type': 'PostgreSQL' if db.use_postgres else 'SQLite',
+            'log_output': log_output,
+            'verification': {
+                'found': row is not None,
+                'status': row[0] if row else None,
+                'result_code': row[1][:100] if row and row[1] else None,
+                'carrier': row[2] if row else None
+            }
+        }
+        
+        logger.removeHandler(handler)
+        return jsonify(result), 200
+        
+    except Exception as e:
+        logger.removeHandler(handler)
+        return jsonify({'error': str(e), 'log_output': log_capture.getvalue()}), 500
+
