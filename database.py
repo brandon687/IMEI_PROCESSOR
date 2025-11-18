@@ -79,12 +79,14 @@ class IMEIDatabase:
         try:
             logger.info(f"Connecting to {db_type} PostgreSQL...")
 
-            # Parse DATABASE_URL and connect
+            # Parse DATABASE_URL and connect with autocommit OFF for explicit transactions
             self.conn = psycopg2.connect(database_url)
+            self.conn.autocommit = False  # Explicit transaction control
+            self.database_url = database_url  # Store for reconnection
             self.use_postgres = True
             self.postgres_type = db_type
 
-            logger.info(f"✓ Connected to {db_type} PostgreSQL")
+            logger.info(f"✓ Connected to {db_type} PostgreSQL (autocommit=False)")
 
             # Create tables if they don't exist
             self._create_tables_postgres()
@@ -109,6 +111,31 @@ class IMEIDatabase:
         except Exception as e:
             logger.error(f"Failed to connect to SQLite: {e}")
             raise
+
+    def _ensure_connection(self):
+        """Ensure database connection is alive - reconnect if needed"""
+        if not self.use_postgres:
+            return  # SQLite doesn't need connection checks
+
+        try:
+            # Quick health check
+            cursor = self.conn.cursor()
+            cursor.execute("SELECT 1")
+            cursor.fetchone()
+        except Exception as e:
+            logger.warning(f"Database connection lost, reconnecting: {e}")
+            try:
+                # Attempt reconnection
+                if hasattr(self, 'database_url') and self.database_url:
+                    self.conn = psycopg2.connect(self.database_url)
+                    self.conn.autocommit = False
+                    logger.info("✓ Reconnected to PostgreSQL")
+                else:
+                    logger.error("Cannot reconnect - no database_url stored")
+                    raise
+            except Exception as reconnect_error:
+                logger.error(f"Failed to reconnect to PostgreSQL: {reconnect_error}")
+                raise
 
     def _create_tables_postgres(self):
         """Create PostgreSQL tables"""
@@ -202,7 +229,15 @@ class IMEIDatabase:
 
     def _insert_order_postgres(self, order_data: Dict) -> Optional[int]:
         """Insert order into PostgreSQL"""
+        order_id = order_data.get('order_id')
+        imei = order_data.get('imei')
+
         try:
+            # Ensure connection is alive
+            self._ensure_connection()
+
+            logger.info(f"Inserting order to PostgreSQL: order_id={order_id}, imei={imei}")
+
             cursor = self.conn.cursor()
 
             cursor.execute("""
@@ -216,10 +251,10 @@ class IMEIDatabase:
                 ON CONFLICT (order_id) DO NOTHING
                 RETURNING id
             """, (
-                order_data.get('order_id'),
+                order_id,
                 order_data.get('service_name'),
                 order_data.get('service_id'),
-                order_data.get('imei'),
+                imei,
                 order_data.get('imei2'),
                 order_data.get('credits'),
                 order_data.get('status', 'Pending'),
@@ -235,13 +270,26 @@ class IMEIDatabase:
             ))
 
             result = cursor.fetchone()
+
+            if result:
+                logger.info(f"✓ Order inserted successfully: id={result[0]}, order_id={order_id}")
+            else:
+                logger.warning(f"⚠️  Order {order_id} already exists (ON CONFLICT triggered)")
+
             self.conn.commit()
+            logger.info(f"✓ Insert commit completed for order {order_id}")
 
             return result[0] if result else None
 
         except Exception as e:
-            logger.error(f"Failed to insert order to PostgreSQL: {e}")
-            self.conn.rollback()
+            logger.error(f"❌ Failed to insert order {order_id} to PostgreSQL: {type(e).__name__}: {e}")
+            import traceback
+            logger.error(f"Traceback:\n{traceback.format_exc()}")
+            try:
+                self.conn.rollback()
+                logger.error(f"✓ Rollback completed")
+            except Exception as rollback_error:
+                logger.error(f"❌ Rollback failed: {rollback_error}")
             return None
 
     def _insert_order_sqlite(self, order_data: Dict) -> Optional[int]:
@@ -337,6 +385,10 @@ class IMEIDatabase:
         logger.info(f"Database Type: {'PostgreSQL' if self.use_postgres else 'SQLite'}")
 
         try:
+            # Step 0: Ensure connection is alive
+            self._ensure_connection()
+            logger.info(f"✓ Database connection verified")
+
             # Step 1: Verify order exists
             cursor = self.conn.cursor()
 
