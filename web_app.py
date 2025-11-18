@@ -1187,6 +1187,69 @@ def manual_sync():
         }), 500
 
 
+@app.route('/api/db-diagnostic')
+def db_diagnostic():
+    """Diagnostic endpoint to check database connection and status"""
+    diagnostic = {
+        'timestamp': datetime.now().isoformat(),
+        'database': {},
+        'environment': {},
+        'orders': {}
+    }
+
+    # Check environment variables
+    diagnostic['environment'] = {
+        'SUPABASE_URL': 'SET' if os.getenv('SUPABASE_URL') else 'NOT SET',
+        'SUPABASE_KEY': 'SET' if os.getenv('SUPABASE_KEY') else 'NOT SET',
+        'using_supabase': bool(os.getenv('SUPABASE_URL') and os.getenv('SUPABASE_KEY'))
+    }
+
+    # Check database connection
+    try:
+        db = get_db_safe()
+        if db:
+            diagnostic['database']['connected'] = True
+            diagnostic['database']['using_supabase'] = db.use_supabase
+            diagnostic['database']['type'] = 'Supabase' if db.use_supabase else 'SQLite'
+
+            # Try to count orders
+            try:
+                if db.use_supabase:
+                    response = db.supabase_client.table('orders').select('count', count='exact').execute()
+                    diagnostic['orders']['total'] = response.count
+
+                    # Get pending orders
+                    pending_response = db.supabase_client.table('orders').select('count', count='exact').in_('status', ['Pending', 'In Process', '1', '4']).execute()
+                    diagnostic['orders']['pending'] = pending_response.count
+
+                    # Get recent orders
+                    recent = db.supabase_client.table('orders').select('order_id', 'imei', 'status').order('created_at', desc=True).limit(5).execute()
+                    diagnostic['orders']['recent_5'] = recent.data
+                else:
+                    cursor = db.conn.cursor()
+                    cursor.execute('SELECT COUNT(*) FROM orders')
+                    diagnostic['orders']['total'] = cursor.fetchone()[0]
+
+                    cursor.execute("SELECT COUNT(*) FROM orders WHERE status IN ('Pending', 'In Process', '1', '4')")
+                    diagnostic['orders']['pending'] = cursor.fetchone()[0]
+
+                    cursor.execute('SELECT order_id, imei, status FROM orders ORDER BY created_at DESC LIMIT 5')
+                    rows = cursor.fetchall()
+                    diagnostic['orders']['recent_5'] = [{'order_id': r[0], 'imei': r[1], 'status': r[2]} for r in rows]
+
+            except Exception as e:
+                diagnostic['orders']['error'] = str(e)
+                diagnostic['orders']['error_type'] = type(e).__name__
+        else:
+            diagnostic['database']['connected'] = False
+            diagnostic['database']['error'] = 'Database not available'
+    except Exception as e:
+        diagnostic['database']['error'] = str(e)
+        diagnostic['database']['error_type'] = type(e).__name__
+
+    return jsonify(diagnostic)
+
+
 @app.route('/status/<order_id>')
 @error_handler
 def order_status(order_id):
