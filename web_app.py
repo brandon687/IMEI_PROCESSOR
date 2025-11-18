@@ -1135,8 +1135,21 @@ def sync_and_parse_orders(parse_enabled: bool = True) -> Dict:
                             result['stats']['parse_failures'] += 1
 
                     # Update database
+                    # If we don't have parsed data from IMEIDataParser, use data from GSMFusionClient order object
+                    if not parsed_data and order.status == 'Completed':
+                        # GSMFusionClient already parses the code field, use those values
+                        parsed_data = {
+                            'carrier': order.carrier,
+                            'model': order.model,
+                            'simlock': order.simlock,
+                            'fmi': order.fmi
+                        }
+                        # Remove None values
+                        parsed_data = {k: v for k, v in parsed_data.items() if v is not None}
+                        logger.info(f"Using GSMFusionClient parsed data: {list(parsed_data.keys())}")
+
                     if parsed_data:
-                        # Update with parsed data
+                        # Update with parsed data (from IMEIDataParser or GSMFusionClient)
                         db.update_order_status(
                             order_id=order.id,
                             status=order.status,
@@ -1146,14 +1159,14 @@ def sync_and_parse_orders(parse_enabled: bool = True) -> Dict:
                         )
                         logger.info(f"✓ Updated order {order.id} with parsed data")
                     else:
-                        # Simple status update
+                        # Simple status update (no data available)
                         db.update_order_status(
                             order_id=order.id,
                             status=order.status,
                             result_code=order.code,
                             result_code_display=order.result_code_display
                         )
-                        logger.info(f"✓ Updated order {order.id} status")
+                        logger.info(f"✓ Updated order {order.id} status only")
 
                     # Count completed orders
                     if order.status == 'Completed':
