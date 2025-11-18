@@ -1103,9 +1103,8 @@ def sync_and_parse_orders(parse_enabled: bool = True) -> Dict:
                         db.update_order_status(
                             order_id=order.id,
                             status=order.status,
-                            code=order.code,
-                            code_display=order.result_code_display,
-                            service_name=order.package,
+                            result_code=order.code,
+                            result_code_display=order.result_code_display,
                             result_data=parsed_data
                         )
                         logger.info(f"✓ Updated order {order.id} with parsed data")
@@ -1114,9 +1113,8 @@ def sync_and_parse_orders(parse_enabled: bool = True) -> Dict:
                         db.update_order_status(
                             order_id=order.id,
                             status=order.status,
-                            code=order.code,
-                            code_display=order.result_code_display,
-                            service_name=order.package
+                            result_code=order.code,
+                            result_code_display=order.result_code_display
                         )
                         logger.info(f"✓ Updated order {order.id} status")
 
