@@ -43,10 +43,10 @@ class IMEIDatabase:
 
         logger.info("=== DATABASE INITIALIZATION ===")
 
-        # Try Railway PostgreSQL first (DATABASE_URL)
-        database_url = os.getenv('DATABASE_URL')
+        # Try Railway PostgreSQL first (DATABASE_URL or DATABASE_PUBLIC_URL)
+        database_url = os.getenv('DATABASE_URL') or os.getenv('DATABASE_PUBLIC_URL')
         if database_url and POSTGRES_AVAILABLE:
-            logger.info("DATABASE_URL found - attempting Railway PostgreSQL connection")
+            logger.info(f"Database connection URL found - attempting Railway PostgreSQL connection")
             if self._connect_postgres(database_url, 'railway'):
                 return
 

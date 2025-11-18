@@ -1203,13 +1203,15 @@ def db_diagnostic():
 
     # Check environment variables
     database_url = os.getenv('DATABASE_URL')
+    database_public_url = os.getenv('DATABASE_PUBLIC_URL')
+    active_db_url = database_url or database_public_url
+
     diagnostic['environment'] = {
         'DATABASE_URL': 'SET' if database_url else 'NOT SET',
-        'DATABASE_URL_preview': database_url[:80] + '...' if database_url and len(database_url) > 80 else database_url if database_url else 'NOT SET',
+        'DATABASE_PUBLIC_URL': 'SET' if database_public_url else 'NOT SET',
+        'ACTIVE_DATABASE_URL_preview': active_db_url[:80] + '...' if active_db_url and len(active_db_url) > 80 else active_db_url if active_db_url else 'NOT SET',
         'SUPABASE_URL': 'SET' if os.getenv('SUPABASE_URL') else 'NOT SET',
         'SUPABASE_KEY': 'SET' if os.getenv('SUPABASE_KEY') else 'NOT SET',
-        'SUPABASE_URL_value': os.getenv('SUPABASE_URL', 'NOT SET')[:50] + '...' if os.getenv('SUPABASE_URL') else 'NOT SET',
-        'using_supabase': bool(os.getenv('SUPABASE_URL') and os.getenv('SUPABASE_KEY'))
     }
 
     # Check if supabase package is available
