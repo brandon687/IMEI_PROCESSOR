@@ -1192,6 +1192,7 @@ def db_diagnostic():
         'timestamp': datetime.now().isoformat(),
         'database': {},
         'environment': {},
+        'package_check': {},
         'orders': {}
     }
 
@@ -1199,8 +1200,21 @@ def db_diagnostic():
     diagnostic['environment'] = {
         'SUPABASE_URL': 'SET' if os.getenv('SUPABASE_URL') else 'NOT SET',
         'SUPABASE_KEY': 'SET' if os.getenv('SUPABASE_KEY') else 'NOT SET',
+        'SUPABASE_URL_value': os.getenv('SUPABASE_URL', 'NOT SET')[:50] + '...' if os.getenv('SUPABASE_URL') else 'NOT SET',
         'using_supabase': bool(os.getenv('SUPABASE_URL') and os.getenv('SUPABASE_KEY'))
     }
+
+    # Check if supabase package is available
+    try:
+        import supabase
+        diagnostic['package_check']['supabase_installed'] = True
+        diagnostic['package_check']['supabase_version'] = getattr(supabase, '__version__', 'unknown')
+
+        from supabase import create_client, Client
+        diagnostic['package_check']['can_import'] = True
+    except ImportError as e:
+        diagnostic['package_check']['supabase_installed'] = False
+        diagnostic['package_check']['import_error'] = str(e)
 
     # Check database connection
     try:

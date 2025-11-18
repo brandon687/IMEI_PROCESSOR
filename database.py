@@ -60,25 +60,43 @@ class IMEIDatabase:
         supabase_url = os.getenv('SUPABASE_URL')
         supabase_key = os.getenv('SUPABASE_KEY')
 
+        logger.info("=== DATABASE INITIALIZATION ===")
+        logger.info(f"SUPABASE_URL set: {bool(supabase_url)}")
+        logger.info(f"SUPABASE_KEY set: {bool(supabase_key)}")
+        logger.info(f"SUPABASE_AVAILABLE (package): {SUPABASE_AVAILABLE}")
+
         if supabase_url and supabase_key and SUPABASE_AVAILABLE:
+            logger.info("All requirements met - attempting Supabase connection")
             self._connect_supabase(supabase_url, supabase_key)
         else:
-            if supabase_url:
-                logger.warning("SUPABASE_URL set but Supabase not available or SUPABASE_KEY missing - falling back to SQLite")
+            reasons = []
+            if not supabase_url:
+                reasons.append("SUPABASE_URL not set")
+            if not supabase_key:
+                reasons.append("SUPABASE_KEY not set")
+            if not SUPABASE_AVAILABLE:
+                reasons.append("supabase package not available")
+
+            logger.warning(f"Cannot use Supabase: {', '.join(reasons)} - falling back to SQLite")
             self._connect_sqlite()
 
     def _connect_supabase(self, url: str, key: str):
         """Connect to Supabase (PostgreSQL)"""
         try:
+            logger.info(f"Creating Supabase client for: {url}")
             self.supabase_client = create_client(url, key)
             self.use_supabase = True
-            logger.info(f"✓ Connected to Supabase: {url}")
+            logger.info(f"✓ Supabase client created successfully")
 
             # Verify connection by pinging
-            self.supabase_client.table('orders').select('id').limit(1).execute()
-            logger.info("✓ Supabase connection verified")
+            logger.info("Verifying Supabase connection with test query...")
+            response = self.supabase_client.table('orders').select('id').limit(1).execute()
+            logger.info(f"✓ Supabase connection verified - query returned: {response}")
         except Exception as e:
-            logger.error(f"Failed to connect to Supabase: {e}")
+            logger.error(f"❌ Failed to connect to Supabase: {e}")
+            logger.error(f"Error type: {type(e).__name__}")
+            import traceback
+            logger.error(f"Traceback: {traceback.format_exc()}")
             logger.warning("Falling back to SQLite")
             self._connect_sqlite()
 
