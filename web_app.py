@@ -1023,11 +1023,43 @@ def sync_and_parse_orders(parse_enabled: bool = True) -> Dict:
         # Get all pending orders
         conn = db.conn
         cursor = conn.cursor()
-        cursor.execute("SELECT order_id FROM orders WHERE status IN ('Pending', 'In Process', '1', '4')")
+
+        # Use case-insensitive matching for status
+        if db.use_postgres:
+            cursor.execute("SELECT order_id FROM orders WHERE UPPER(status) IN ('PENDING', 'IN PROCESS', '1', '4')")
+        else:
+            cursor.execute("SELECT order_id FROM orders WHERE status IN ('Pending', 'In Process', '1', '4')")
+
         pending_orders = cursor.fetchall()
 
         result['stats']['total_pending'] = len(pending_orders)
         logger.info(f"Found {len(pending_orders)} pending orders to sync")
+
+        # Log the order IDs we found for debugging
+        if pending_orders:
+            order_ids_preview = [row[0] for row in pending_orders[:5]]
+            logger.info(f"✓ Found {len(pending_orders)} pending orders")
+            logger.info(f"Pending order IDs (first 5): {order_ids_preview}")
+        else:
+            logger.warning(f"⚠️ CRITICAL: No pending orders found! Diagnosing...")
+
+            # Check what orders exist
+            cursor.execute("SELECT COUNT(*) FROM orders")
+            total_count = cursor.fetchone()[0]
+            logger.warning(f"Total orders in database: {total_count}")
+
+            # Check what statuses exist
+            cursor.execute("SELECT DISTINCT status, COUNT(*) FROM orders GROUP BY status ORDER BY status")
+            status_breakdown = cursor.fetchall()
+            logger.warning(f"Status breakdown: {dict(status_breakdown)}")
+
+            # Check the most recent orders
+            if db.use_postgres:
+                cursor.execute("SELECT order_id, status, imei FROM orders ORDER BY created_at DESC LIMIT 5")
+            else:
+                cursor.execute("SELECT order_id, status, imei FROM orders ORDER BY created_at DESC LIMIT 5")
+            recent_orders = cursor.fetchall()
+            logger.warning(f"Recent 5 orders: {recent_orders}")
 
         if not pending_orders:
             result['success'] = True
