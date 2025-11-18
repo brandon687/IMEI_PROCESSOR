@@ -325,41 +325,141 @@ class IMEIDatabase:
 
     def update_order_status(self, order_id: str, status: str, result_code: str = None,
                            result_code_display: str = None, result_data: Dict = None):
-        """Update order with results"""
+        """Update order with results - BULLETPROOF VERSION with comprehensive logging"""
+        update_start = datetime.now()
+
+        logger.info(f"=== UPDATE_ORDER_STATUS START ===")
+        logger.info(f"Order ID: {order_id}")
+        logger.info(f"Status: {status}")
+        logger.info(f"Result Code Length: {len(result_code) if result_code else 0}")
+        logger.info(f"Result Code Display: {result_code_display}")
+        logger.info(f"Result Data Fields: {list(result_data.keys()) if result_data else []}")
+        logger.info(f"Database Type: {'PostgreSQL' if self.use_postgres else 'SQLite'}")
+
         try:
+            # Step 1: Verify order exists
             cursor = self.conn.cursor()
 
-            # Build update query
+            if self.use_postgres:
+                cursor.execute("SELECT order_id, status, imei FROM orders WHERE order_id = %s", (order_id,))
+            else:
+                cursor.execute("SELECT order_id, status, imei FROM orders WHERE order_id = ?", (order_id,))
+
+            existing_order = cursor.fetchone()
+
+            if not existing_order:
+                logger.error(f"❌ ORDER NOT FOUND in database: {order_id}")
+                return False
+
+            if self.use_postgres:
+                logger.info(f"✓ Order exists - Current status: {existing_order[1]}, IMEI: {existing_order[2]}")
+            else:
+                logger.info(f"✓ Order exists - Current status: {existing_order['status']}, IMEI: {existing_order['imei']}")
+
+            # Step 2: Build update query
             update_fields = ['status = %s' if self.use_postgres else 'status = ?']
             params = [status]
+            logger.info(f"Building UPDATE query - Starting with status = {status}")
 
             if result_code:
                 update_fields.append('result_code = %s' if self.use_postgres else 'result_code = ?')
                 params.append(result_code)
+                logger.info(f"Adding result_code ({len(result_code)} chars)")
 
             if result_code_display:
                 update_fields.append('result_code_display = %s' if self.use_postgres else 'result_code_display = ?')
                 params.append(result_code_display)
+                logger.info(f"Adding result_code_display: {result_code_display}")
 
             if result_data:
+                fields_added = []
                 for field in ['carrier', 'model', 'simlock', 'fmi', 'imei2', 'serial_number',
                              'meid', 'gsma_status', 'purchase_date', 'applecare', 'tether_policy']:
                     if result_data.get(field):
                         update_fields.append(f'{field} = %s' if self.use_postgres else f'{field} = ?')
-                        params.append(result_data[field])
+                        value = result_data[field]
+                        params.append(value)
+                        fields_added.append(f"{field}={value[:50] if isinstance(value, str) else value}")
+
+                logger.info(f"Added {len(fields_added)} result_data fields: {fields_added}")
 
             update_fields.append('updated_at = CURRENT_TIMESTAMP')
             params.append(order_id)
 
+            # Step 3: Execute query
             query = f"UPDATE orders SET {', '.join(update_fields)} WHERE order_id = {'%s' if self.use_postgres else '?'}"
-            cursor.execute(query, params)
-            self.conn.commit()
 
-            return cursor.rowcount > 0
+            logger.info(f"Executing UPDATE query:")
+            logger.info(f"  Query: {query}")
+            logger.info(f"  Param count: {len(params)}")
+            logger.info(f"  Param values (truncated): {[str(p)[:100] for p in params]}")
+
+            # Execute
+            cursor.execute(query, params)
+            rowcount = cursor.rowcount
+
+            logger.info(f"UPDATE executed - rowcount: {rowcount}")
+
+            if rowcount == 0:
+                logger.error(f"❌ UPDATE returned 0 rows - order_id may not match: {order_id}")
+                logger.error(f"Attempting to verify order still exists...")
+
+                # Re-check if order exists
+                if self.use_postgres:
+                    cursor.execute("SELECT order_id FROM orders WHERE order_id = %s", (order_id,))
+                else:
+                    cursor.execute("SELECT order_id FROM orders WHERE order_id = ?", (order_id,))
+
+                still_exists = cursor.fetchone()
+                if still_exists:
+                    logger.error(f"Order {order_id} still exists but UPDATE didn't affect it - possible constraint issue")
+                else:
+                    logger.error(f"Order {order_id} no longer exists - race condition?")
+
+            # Step 4: Commit
+            logger.info(f"Calling commit()...")
+            self.conn.commit()
+            logger.info(f"✓ Commit completed successfully")
+
+            # Step 5: Verify update
+            if rowcount > 0:
+                logger.info(f"Verifying update was persisted...")
+
+                if self.use_postgres:
+                    cursor.execute("SELECT status, carrier, model, simlock, fmi FROM orders WHERE order_id = %s", (order_id,))
+                else:
+                    cursor.execute("SELECT status, carrier, model, simlock, fmi FROM orders WHERE order_id = ?", (order_id,))
+
+                updated_order = cursor.fetchone()
+
+                if updated_order:
+                    if self.use_postgres:
+                        logger.info(f"✓ Verification: status={updated_order[0]}, carrier={updated_order[1]}, model={updated_order[2][:50] if updated_order[2] else None}")
+                    else:
+                        logger.info(f"✓ Verification: status={updated_order['status']}, carrier={updated_order['carrier']}, model={updated_order['model'][:50] if updated_order['model'] else None}")
+                else:
+                    logger.error(f"❌ Verification failed - cannot retrieve updated order")
+
+            update_duration = (datetime.now() - update_start).total_seconds()
+            logger.info(f"=== UPDATE_ORDER_STATUS END ({update_duration:.3f}s) - Success: {rowcount > 0} ===")
+
+            return rowcount > 0
 
         except Exception as e:
-            logger.error(f"Failed to update order status: {e}")
-            self.conn.rollback()
+            logger.error(f"❌ EXCEPTION in update_order_status: {type(e).__name__}: {e}")
+            import traceback
+            logger.error(f"Traceback:\n{traceback.format_exc()}")
+
+            try:
+                logger.error(f"Attempting rollback...")
+                self.conn.rollback()
+                logger.error(f"✓ Rollback completed")
+            except Exception as rollback_error:
+                logger.error(f"❌ Rollback failed: {rollback_error}")
+
+            update_duration = (datetime.now() - update_start).total_seconds()
+            logger.info(f"=== UPDATE_ORDER_STATUS END ({update_duration:.3f}s) - FAILED ===")
+
             return False
 
     def get_orders_by_status(self, status: str) -> List[Dict]:
