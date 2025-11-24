@@ -562,24 +562,30 @@ class GSMFusionClient:
             'errors': []
         }
 
-        # Handle if data is a string (error message)
+        # Handle error responses (can be string or dict with 'error' key)
+        error_message = None
         if isinstance(data, str):
+            error_message = data
+        elif isinstance(data, dict) and 'error' in data:
+            error_message = data['error']
+
+        if error_message:
             # Check if it's a duplicate error
-            if 'already exists' in data.lower():
+            if 'already exists' in error_message.lower():
                 # If force_recheck is enabled, treat as error to show in UI
                 if force_recheck:
-                    result['errors'].append(f"FORCE RECHECK FAILED: {data} (GSM Fusion API rejected re-submission)")
-                    logger.error(f"Force recheck failed - API still rejects: {data}")
+                    result['errors'].append(f"FORCE RECHECK FAILED: {error_message} (GSM Fusion API rejected re-submission)")
+                    logger.error(f"Force recheck failed - API still rejects: {error_message}")
                 else:
                     # Normal behavior: mark as duplicate
                     if isinstance(imei, list):
                         result['duplicates'].extend(imei)
                     else:
                         result['duplicates'].append(imei)
-                    logger.warning(f"Duplicate IMEI(s): {data}")
+                    logger.warning(f"Duplicate IMEI(s): {error_message}")
             else:
-                result['errors'].append(data)
-                logger.error(f"Order placement failed: {data}")
+                result['errors'].append(error_message)
+                logger.error(f"Order placement failed: {error_message}")
             return result
 
         # Parse successful orders
